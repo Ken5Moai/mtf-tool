@@ -2,6 +2,9 @@
 Scan all symbols with the MTF engine and push an ntfy notification on BUY/SELL.
 Run by GitHub Actions on a schedule (see .github/workflows/scan.yml).
 Set repo secret NTFY_TOPIC to your ntfy topic name.
+
+On a manual run (Actions -> Run workflow) it always sends a small test ping,
+so you can confirm notification delivery even when there are no signals.
 """
 import os
 import sys
@@ -15,6 +18,7 @@ FX = {"USD/JPY": "USDJPY=X", "EUR/USD": "EURUSD=X", "GBP/JPY": "GBPJPY=X", "GOLD
 FX_TF = {"H1": ("1h", "1mo"), "M15": ("15m", "1mo"), "M5": ("5m", "7d")}
 CRYPTO_TF = {"H1": "1h", "M15": "15m", "M5": "5m"}
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "").strip()
+EVENT = os.environ.get("GITHUB_EVENT_NAME", "")
 
 
 def fetch_crypto(symbol, tf, limit=250):
@@ -36,6 +40,22 @@ def fetch_fx(yf_symbol, tf):
                        "close": d["close"], "volume": d.get("volume", 0)}).astype(float)
     df.index = pd.to_datetime(d[tc], utc=True)
     return df.dropna().sort_index()
+
+
+def notify(title, body, tags="chart_with_upwards_trend", priority="default"):
+    if not NTFY_TOPIC:
+        print("NTFY_TOPIC not set - skipping notification", file=sys.stderr)
+        return
+    try:
+        requests.post(
+            f"https://ntfy.sh/{NTFY_TOPIC}",
+            data=body.encode("utf-8"),
+            headers={"Title": title, "Priority": priority, "Tags": tags},
+            timeout=20,
+        )
+        print("notification sent")
+    except Exception as e:
+        print(f"ntfy send failed: {e}", file=sys.stderr)
 
 
 def check(name, get_bars):
@@ -66,21 +86,12 @@ def main():
     for h in hits:
         print("  " + h.replace("\n", " | "))
 
-    if hits and NTFY_TOPIC:
-        body = "\n\n".join(hits)
-        try:
-            requests.post(
-                f"https://ntfy.sh/{NTFY_TOPIC}",
-                data=body.encode("utf-8"),
-                headers={"Title": "MTF signal", "Priority": "high",
-                         "Tags": "chart_with_upwards_trend"},
-                timeout=20,
-            )
-            print("notification sent")
-        except Exception as e:
-            print(f"ntfy send failed: {e}", file=sys.stderr)
-    elif hits and not NTFY_TOPIC:
-        print("NTFY_TOPIC not set - skipping notification", file=sys.stderr)
+    if hits:
+        notify("MTF signal", "\n\n".join(hits), priority="high")
+    elif EVENT == "workflow_dispatch":
+        notify("MTF scan test",
+               f"Test run OK. No signals right now ({stamp}).",
+               tags="white_check_mark")
 
 
 if __name__ == "__main__":
