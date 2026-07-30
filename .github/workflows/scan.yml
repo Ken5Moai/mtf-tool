@@ -1,0 +1,19 @@
+name: MTF signal scan
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # every 15 minutes (UTC; may be delayed a few min)
+  workflow_dispatch:          # allows manual run from the Actions tab
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ccxt yfinance pandas numpy requests
+      - run: python scan.py
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
