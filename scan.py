@@ -13,7 +13,7 @@ import pandas as pd
 import requests
 from engine import evaluate
 
-CRYPTO = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "XRP/USDT"]
+CRYPTO = ["BTC/USD", "ETH/USD", "SOL/USD", "XRP/USD"]
 FX = {"USD/JPY": "USDJPY=X", "EUR/USD": "EURUSD=X", "GBP/JPY": "GBPJPY=X", "GOLD (XAU)": "GC=F"}
 FX_TF = {"H1": ("1h", "1mo"), "M15": ("15m", "1mo"), "M5": ("5m", "7d")}
 CRYPTO_TF = {"H1": "1h", "M15": "15m", "M5": "5m"}
@@ -23,7 +23,7 @@ EVENT = os.environ.get("GITHUB_EVENT_NAME", "")
 
 def fetch_crypto(symbol, tf, limit=250):
     import ccxt
-    ex = ccxt.binance({"enableRateLimit": True})
+    ex = ccxt.kraken({"enableRateLimit": True})
     o = ex.fetch_ohlcv(symbol, tf, limit=limit)
     df = pd.DataFrame(o, columns=["ts", "open", "high", "low", "close", "volume"])
     df.index = pd.to_datetime(df["ts"], unit="ms", utc=True)

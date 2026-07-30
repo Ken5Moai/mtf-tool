@@ -1,7 +1,7 @@
 """
 MTF trade signal tool (Streamlit UI).
 Select a symbol -> auto-fetch H1/M15/M5 -> show BUY/SELL/NO-TRADE + entry/SL/TP.
-Supports crypto (Binance) and FX/gold (Yahoo). Export result as an image.
+Supports crypto (Kraken) and FX/gold (Yahoo). Export result as an image.
 """
 from __future__ import annotations
 import pandas as pd
@@ -25,17 +25,17 @@ h1 {letter-spacing:.5px;}
 </style>
 """, unsafe_allow_html=True)
 
-CRYPTO = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "XRP/USDT"]
+CRYPTO = ["BTC/USD", "ETH/USD", "SOL/USD", "XRP/USD"]
 FX = {"USD/JPY": "USDJPY=X", "EUR/USD": "EURUSD=X", "GBP/JPY": "GBPJPY=X", "GOLD (XAU)": "GC=F"}
 FX_TF = {"H1": ("1h", "1mo"), "M15": ("15m", "1mo"), "M5": ("5m", "7d")}
-SRC_CRYPTO = "Crypto (Binance)"
+SRC_CRYPTO = "Crypto (Kraken)"
 SRC_FX = "FX / Gold (Yahoo)"
 
 
 @st.cache_data(ttl=60, show_spinner=False)
 def fetch_crypto(symbol, tf, limit=250):
     import ccxt
-    ex = ccxt.binance({"enableRateLimit": True})
+    ex = ccxt.kraken({"enableRateLimit": True})
     o = ex.fetch_ohlcv(symbol, tf, limit=limit)
     df = pd.DataFrame(o, columns=["ts", "open", "high", "low", "close", "volume"])
     df.index = pd.to_datetime(df["ts"], unit="ms", utc=True)
@@ -93,7 +93,7 @@ with st.sidebar:
     symbol = st.selectbox("Symbol", symbols)
     run = st.button("Analyze", use_container_width=True, type="primary")
     st.divider()
-    st.caption("Data: Binance / Yahoo Finance (free, auto-fetch)")
+    st.caption("Data: Kraken / Yahoo Finance (free, auto-fetch)")
 
 if not run:
     st.info("Pick a market and symbol on the left, then press Analyze.")
