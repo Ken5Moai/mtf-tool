@@ -3,8 +3,10 @@ Scan all symbols with the MTF engine and push an ntfy notification on BUY/SELL.
 Run by GitHub Actions on a schedule (see .github/workflows/scan.yml).
 Set repo secret NTFY_TOPIC to your ntfy topic name.
 
-On a manual run (Actions -> Run workflow) it always sends a small test ping,
-so you can confirm notification delivery even when there are no signals.
+Manual run (Actions -> Run workflow):
+  - always sends a small test ping (confirms delivery).
+  - if the 'demo' checkbox is on, also sends a SAMPLE BUY alert so you can
+    preview what a real signal looks like.
 """
 import os
 import sys
@@ -19,6 +21,7 @@ FX_TF = {"H1": ("1h", "1mo"), "M15": ("15m", "1mo"), "M5": ("5m", "7d")}
 CRYPTO_TF = {"H1": "1h", "M15": "15m", "M5": "5m"}
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "").strip()
 EVENT = os.environ.get("GITHUB_EVENT_NAME", "")
+DEMO = os.environ.get("DEMO", "").lower() == "true"
 
 
 def fetch_crypto(symbol, tf, limit=250):
@@ -71,6 +74,14 @@ def check(name, get_bars):
 
 
 def main():
+    if DEMO:
+        sample = ("BTC/USD  BUY\n"
+                  "entry 61240.0 / SL 61160.66 / TP 61373.29  (RR 1.68:1)\n\n"
+                  "** SAMPLE ** this is an example of a real alert, not a live signal.")
+        notify("MTF signal (SAMPLE)", sample, priority="high")
+        print("demo sample sent")
+        return
+
     hits = []
     for s in CRYPTO:
         m = check(s, lambda tf, s=s: fetch_crypto(s, CRYPTO_TF[tf]))

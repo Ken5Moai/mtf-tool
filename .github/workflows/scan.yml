@@ -2,8 +2,13 @@ name: MTF signal scan
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # every 15 minutes (UTC; may be delayed a few min)
-  workflow_dispatch:          # allows manual run from the Actions tab
+    - cron: "*/15 * * * *"   # every 15 minutes (GitHub free tier throttles this to ~1-3h)
+  workflow_dispatch:
+    inputs:
+      demo:
+        description: "Send a SAMPLE BUY alert (preview only)"
+        type: boolean
+        default: false
 
 jobs:
   scan:
@@ -17,3 +22,4 @@ jobs:
       - run: python scan.py
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          DEMO: ${{ inputs.demo }}
