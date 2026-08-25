@@ -1,0 +1,765 @@
+<title>トレード台帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
+<script type="application/json" id="state">{"config":{"goalJpy":100000,"seedJpy":50000,"usdjpy":155,"days":30,"riskPct":2},"trades":[],"savedAt":0}</script>
+<div class="wrap" id="app"></div>
+<script>
+// このページの正本は APP そのもの。記録を保存するときは APP.toString() から
+// 同じ文書を組み立て直して publish する（描画結果は保存しない）。
+const APP = function () {
+  "use strict";
+
+  const LS_KEY = "trade-ledger-shared-v1";
+  const WEEK = ["月", "火", "水", "木", "金", "土", "日"];
+  const DEFAULTS = { goalJpy: 100000, seedJpy: 50000, usdjpy: 155, days: 30, riskPct: 2 };
+  const FONTS = "https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap";
+
+  const CSS = String.raw`
+:root{
+  --paper:#EFF1F5; --surface:#FFFFFF; --surface-2:#F7F8FB;
+  --ink:#161922; --muted:#6A7086;
+  --rule:#D6DAE4; --rule-strong:#AEB4C4;
+  --brass:#8C6714; --brass-ink:#FFFFFF; --brass-wash:#F3E8CC;
+  --gain:#1B6A4C; --loss:#A33B30;
+  --gain-wash:#DDEDE4; --loss-wash:#F6DFDB;
+  --sat:#3E6FB5;
+  --serif:"Zen Old Mincho",'Hiragino Mincho ProN','Yu Mincho',serif;
+  --sans:"Zen Kaku Gothic New",'Hiragino Sans','Yu Gothic',system-ui,sans-serif;
+  --mono:"Roboto Mono",ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#101219; --surface:#181B24; --surface-2:#1E2230;
+    --ink:#E6E9F1; --muted:#98A0B5;
+    --rule:#2A2F3D; --rule-strong:#3D4354;
+    --brass:#D9B25C; --brass-ink:#171922; --brass-wash:#332A15;
+    --gain:#5CC292; --loss:#E67E72;
+    --gain-wash:#16301F; --loss-wash:#331B19;
+    --sat:#7FA6E0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#101219; --surface:#181B24; --surface-2:#1E2230;
+  --ink:#E6E9F1; --muted:#98A0B5;
+  --rule:#2A2F3D; --rule-strong:#3D4354;
+  --brass:#D9B25C; --brass-ink:#171922; --brass-wash:#332A15;
+  --gain:#5CC292; --loss:#E67E72;
+  --gain-wash:#16301F; --loss-wash:#331B19;
+  --sat:#7FA6E0;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 20px 72px}
+
+.masthead{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);
+  padding-bottom:10px;margin-bottom:2px;
+}
+.masthead h1{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(26px,4.2vw,38px);line-height:1.15;margin:0;
+  letter-spacing:.02em;text-wrap:balance;
+}
+.masthead .sub{
+  font-size:11px;letter-spacing:.22em;color:var(--muted);
+  font-family:var(--mono);margin-bottom:2px;
+}
+.rule-thin{height:1px;background:var(--rule-strong);margin-bottom:18px}
+
+.nav{display:flex;gap:6px;align-items:center}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:2px;
+  padding:7px 13px;font-size:14px;line-height:1.2;
+  transition:background .12s ease,border-color .12s ease;
+}
+.btn:hover{background:var(--surface-2);border-color:var(--brass)}
+.btn.primary{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:700}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:var(--rule)}
+:where(button,input,select,[tabindex]):focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.band{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--rule-strong);background:var(--surface);margin-bottom:22px;
+}
+.fig{padding:12px 14px;border-left:1px solid var(--rule);min-width:0}
+.fig:first-child{border-left:0}
+.fig .k{font-size:11px;letter-spacing:.12em;color:var(--muted);font-family:var(--mono)}
+.fig .v{
+  font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;
+  font-size:clamp(19px,3vw,25px);line-height:1.25;margin-top:2px;
+}
+.fig .n{font-size:12px;color:var(--muted);margin-top:1px}
+.v.gain{color:var(--gain)}
+.v.loss{color:var(--loss)}
+.n.warn{color:var(--loss);font-weight:700}
+
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:1px}
+.dow span{
+  text-align:center;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;color:var(--muted);padding:4px 0;
+}
+.dow .sat{color:var(--sat)}
+.dow .sun{color:var(--loss)}
+
+.grid{
+  display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
+  background:var(--rule);border:1px solid var(--rule-strong);
+}
+.cell{
+  background:var(--surface);border:0;border-radius:0;min-height:78px;
+  padding:6px 7px;text-align:left;display:flex;flex-direction:column;gap:4px;
+  transition:background .1s ease;font-family:inherit;
+}
+.cell.blank{background:var(--paper);cursor:default}
+.cell:not(.blank):hover{background:var(--brass-wash)}
+.cell .d{
+  font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;
+  color:var(--muted);line-height:1;
+}
+.cell.today .d{color:var(--brass);font-weight:700}
+.cell.today .d::after{content:"·今日";font-size:10px;letter-spacing:.04em;margin-left:3px}
+.cell .amt{
+  font-family:var(--mono);font-weight:500;font-size:14px;
+  font-variant-numeric:tabular-nums;line-height:1.2;
+}
+.cell .amt.gain{color:var(--gain)}
+.cell .amt.loss{color:var(--loss)}
+.cell .cnt{font-size:10px;color:var(--muted);margin-top:auto;line-height:1.2}
+.cell.sel{background:var(--brass)}
+.cell.sel .d,.cell.sel .amt,.cell.sel .cnt{color:var(--brass-ink)}
+
+.entry{margin-top:26px;border-top:3px double var(--ink);padding-top:18px}
+.entry h2{
+  font-family:var(--serif);font-size:20px;font-weight:700;margin:0 0 14px;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+}
+.entry h2 .day{font-family:var(--mono);font-size:15px;color:var(--muted);font-weight:400}
+.form{
+  background:var(--surface);border:1px solid var(--rule-strong);padding:16px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;flex:1 1 160px;min-width:0}
+.field label{font-size:12px;letter-spacing:.08em;color:var(--muted);font-family:var(--mono)}
+input,select{
+  font:inherit;background:var(--surface-2);color:var(--ink);
+  border:1px solid var(--rule-strong);border-radius:2px;padding:9px 11px;width:100%;
+}
+input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+.seg button{flex:1;background:var(--surface-2);border:0;padding:9px 10px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{font-weight:700}
+.seg button.gain[aria-pressed="true"]{background:var(--gain-wash);color:var(--gain)}
+.seg button.loss[aria-pressed="true"]{background:var(--loss-wash);color:var(--loss)}
+details.more{border-top:1px solid var(--rule);padding-top:12px}
+details.more>summary{
+  cursor:pointer;font-size:13px;color:var(--muted);list-style:none;
+  display:flex;align-items:center;gap:6px;
+}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"＋";font-family:var(--mono)}
+details.more[open]>summary::before{content:"−"}
+details.more .row{margin-top:12px}
+
+.lines{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.lines th{
+  text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--muted);font-weight:400;padding:6px 8px;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+}
+.lines td{padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+.lines td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lines td.num.gain{color:var(--gain)}
+.lines td.num.loss{color:var(--loss)}
+.lines .memo{color:var(--muted)}
+.tablewrap{overflow-x:auto}
+.del{background:none;border:0;color:var(--muted);font-size:16px;line-height:1;padding:2px 7px;border-radius:2px}
+.del:hover{color:var(--loss);background:var(--loss-wash)}
+.empty{color:var(--muted);font-size:14px;padding:14px 0}
+
+.report{
+  margin-top:30px;background:var(--surface);border:1px solid var(--rule-strong);
+  border-left:3px solid var(--brass);padding:18px 20px;
+}
+.report h3{font-family:var(--serif);font-size:17px;margin:0 0 12px;font-weight:700}
+.report section{margin-bottom:14px}
+.report section:last-child{margin-bottom:0}
+.report .h{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--brass);margin-bottom:5px}
+.report p{margin:0 0 4px;font-size:14.5px;line-height:1.7}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.meter{height:6px;background:var(--rule);margin:8px 0 10px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--brass)}
+
+.settings{margin-top:30px;border-top:1px solid var(--rule-strong);padding-top:14px}
+.settings>summary{
+  cursor:pointer;font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+  color:var(--muted);list-style:none;
+}
+.settings>summary::-webkit-details-marker{display:none}
+.settings>summary::before{content:"⚙ "}
+.settings .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:14px}
+.settings .hint{font-size:12.5px;color:var(--muted);margin-top:12px}
+
+.foot{
+  margin-top:26px;display:flex;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);font-family:var(--mono);
+}
+.status{display:flex;align-items:center;gap:7px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--rule-strong);flex:none}
+.dot.ok{background:var(--gain)}
+.dot.busy{background:var(--brass)}
+.dot.warn{background:var(--loss)}
+
+@media (max-width:660px){
+  .wrap{padding:20px 12px 56px}
+  .band{grid-template-columns:repeat(2,1fr)}
+  .fig:nth-child(3){border-left:0}
+  .fig:nth-child(n+3){border-top:1px solid var(--rule)}
+  .cell{min-height:62px;padding:5px 4px}
+  .cell .amt{font-size:12px}
+  .cell.today .d::after{content:""}
+  .cell .cnt{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+`;
+
+  // ------------------------------------------------------------ 文書の骨組み
+  function shell(json) {
+    return [
+      "<!doctype html>",
+      '<html lang="ja"><head><meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width,initial-scale=1">',
+      "<title>トレード台帳</title>",
+      '<link rel="preconnect" href="https://fonts.googleapis.com">',
+      '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+      '<link rel="stylesheet" href="' + FONTS + '">',
+      '<style id="ledger-css">' + CSS + "</style>",
+      "</head><body>",
+      '<script type="application/json" id="state">' + json + "<\/script>",
+      '<div class="wrap" id="app"></div>',
+      "<script>const APP = " + APP.toString() + ";\nAPP();<\/script>",
+      "</body></html>",
+    ].join("\n");
+  }
+
+  // ------------------------------------------------------------------ 状態
+  function normalize(raw) {
+    const s = raw && typeof raw === "object" ? raw : {};
+    return {
+      config: Object.assign({}, DEFAULTS, s.config || {}),
+      trades: Array.isArray(s.trades) ? s.trades : [],
+      savedAt: +s.savedAt || 0,
+    };
+  }
+  function readEmbedded() {
+    const el = document.getElementById("state");
+    try { return normalize(JSON.parse(el.textContent)); }
+    catch { return normalize(null); }
+  }
+  function readLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      return raw ? normalize(JSON.parse(raw)) : null;
+    } catch { return null; }
+  }
+
+  const published = readEmbedded();
+  const cached = readLocal();
+  // 公開版と端末の控えのうち、あとに保存された方を採用する
+  const state = cached && cached.savedAt > published.savedAt ? cached : published;
+
+  let selected = todayISO();
+  let view = { y: +selected.slice(0, 4), m: +selected.slice(5, 7) };
+  let sign = 1;
+  let sync = { code: "", text: "保存先を確認中…" };
+
+  // ------------------------------------------------------------------ 道具
+  function todayISO() {
+    const d = new Date();
+    return iso(d.getFullYear(), d.getMonth() + 1, d.getDate());
+  }
+  function iso(y, m, d) {
+    return y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+  }
+  function ym(y, m) { return y + "-" + String(m).padStart(2, "0"); }
+  function shiftMonth(y, m, delta) {
+    const i = y * 12 + (m - 1) + delta;
+    return { y: Math.floor(i / 12), m: (i % 12) + 1 };
+  }
+  function weekdayOf(dayISO) {
+    const d = new Date(dayISO + "T00:00:00");
+    return WEEK[(d.getDay() + 6) % 7];
+  }
+  const round2 = (x) => Math.round(x * 100) / 100;
+  const net = (t) => round2((+t.pnl || 0) - (+t.fee || 0));
+  const sum = (a) => round2(a.reduce((x, y) => x + y, 0));
+
+  function money(x, digits) {
+    const d = digits === undefined ? 2 : digits;
+    return (x < 0 ? "−" : "+") + Math.abs(x).toLocaleString("en-US",
+      { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  // マスは幅が狭いので末尾の0を落とす（−12.50 → −12.5、+25.00 → +25）
+  const compact = (x) => money(x, 2).replace(/\.?0+$/, "");
+  const yen = (x) => (x < 0 ? "−" : "+") + Math.round(Math.abs(x)).toLocaleString("ja-JP");
+  const jp = (x) => Math.round(x).toLocaleString("ja-JP");
+  const pct = (x) => (x * 100).toFixed(1).replace("-", "−") + "%";
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+  const monthTrades = (y, m) => state.trades.filter((t) => t.date.startsWith(ym(y, m)));
+  const dayTrades = (d) => state.trades.filter((t) => t.date === d);
+
+  // ------------------------------------------------------------------ 集計
+  function performance(rows) {
+    const nets = rows.map(net);
+    const wins = nets.filter((x) => x > 0);
+    const losses = nets.filter((x) => x < 0);
+    const gp = sum(wins);
+    const gl = Math.abs(sum(losses));
+    const decided = wins.length + losses.length;
+    let run = 0, worst = 0;
+    for (const x of nets) { run = x < 0 ? run + 1 : 0; worst = Math.max(worst, run); }
+    return {
+      n: rows.length, wins: wins.length, losses: losses.length,
+      winRate: decided ? wins.length / decided : 0,
+      net: sum(nets),
+      pf: gl > 0 ? round2(gp / gl) : (gp > 0 ? Infinity : 0),
+      expectancy: rows.length ? round2(sum(nets) / rows.length) : 0,
+      lossStreak: worst,
+    };
+  }
+
+  function progress(y, m) {
+    const c = state.config;
+    const rows = monthTrades(y, m);
+    const perf = performance(rows);
+    const cum = perf.net;
+    const daysDone = new Set(rows.map((t) => t.date)).size;
+    const daysLeft = Math.max(c.days - daysDone, 0);
+    const goal = c.goalJpy / c.usdjpy;
+    const seed = c.seedJpy / c.usdjpy;
+    const onTrack = c.days ? (goal * daysDone) / c.days : 0;
+    const pace = onTrack > 0 ? cum / onTrack : (cum >= 0 ? 1 : 0);
+    const equity = seed + cum;
+    return {
+      perf, cum, goal, seed, equity, daysDone, daysLeft, onTrack, pace,
+      achieved: goal ? cum / goal : 0,
+      gap: round2(cum - onTrack),
+      needPerDay: daysLeft ? (goal - cum) / daysLeft : 0,
+      parPerDay: c.days ? goal / c.days : 0,
+      risk: (equity * c.riskPct) / 100,
+      seedOk: equity >= seed,
+      seedAlert: equity < seed * 0.8,
+      status: pace >= 1 ? "順調" : pace >= 0.8 ? "ややビハインド" : "要巻き返し",
+    };
+  }
+
+  // ------------------------------------------------------------------ 日報
+  function reportFor(day) {
+    const p = progress(+day.slice(0, 4), +day.slice(5, 7));
+    const today = dayTrades(day);
+    const tp = sum(today.map(net));
+
+    let action;
+    if (p.seedAlert) {
+      action = "種銭割れ。ロットを半分に落として、明日は最も自信のある1トレードだけに絞る。";
+    } else if (p.perf.lossStreak >= 3 && tp < 0) {
+      action = "3連敗以上。明日はロット半分・1日1トレード上限で、まず流れを止める。";
+    } else if (p.daysLeft && p.needPerDay > p.parPerDay * 1.5) {
+      action = "必要ペースが平常の1.5倍。狙う回数は増やさず、RR 2.0 以上の場面だけに絞る。";
+    } else if (!p.daysLeft) {
+      action = "稼働日を消化。今月の数字を確定して、勝ちパターンを来月のルールに書き写す。";
+    } else {
+      action = "明日も " + p.parPerDay.toFixed(2) + " ドル（約 " + jp(p.parPerDay * state.config.usdjpy)
+        + " 円）を淡々と。1トレードの許容損失は " + p.risk.toFixed(2) + " ドルまで。";
+    }
+
+    let cheer;
+    if (!today.length) cheer = "ノートレードも判断のうち。条件が来ない日に耐えられる人が月末に残ります。";
+    else if (tp > 0 && p.pace >= 1) cheer = "ナイストレード。ペースに貯金あり、この型を明日もそのまま再現。";
+    else if (tp > 0) cheer = "小さくてもプラス。積み上げは裏切りません。";
+    else if (tp === 0) cheer = "資金を減らさずに終えられた日。守れた日が次の勝負に繋がります。";
+    else cheer = "損切りできた時点で及第点。1日の負けは30日の中の1マスです。";
+
+    return { p, tp, count: today.length, action, cheer };
+  }
+
+  // ------------------------------------------------------------------ 描画
+  function render() {
+    ensureStyle();
+    const y = view.y, m = view.m;
+    const rows = monthTrades(y, m);
+    const total = sum(rows.map(net));
+    const p = progress(y, m);
+
+    document.getElementById("app").innerHTML =
+      '<header class="masthead"><div>' +
+        '<div class="sub">TRADE LEDGER</div>' +
+        "<h1>" + y + "年 " + m + "月</h1></div>" +
+        '<div class="nav">' +
+          '<button class="btn" data-nav="-1">◀ 前月</button>' +
+          '<button class="btn" data-nav="0">今月</button>' +
+          '<button class="btn" data-nav="1">翌月 ▶</button>' +
+        "</div></header>" +
+      '<div class="rule-thin"></div>' +
+      '<div class="band">' +
+        fig("この月の損益", money(total), cls(total),
+            rows.length + " 件 ／ 約 " + yen(total * state.config.usdjpy) + " 円") +
+        fig("達成率", pct(p.achieved), "",
+            "目標 " + p.goal.toFixed(2) + " ドル ／ " + p.status) +
+        fig("必要ペース", p.needPerDay.toFixed(2),
+            "", p.daysLeft ? "1日あたり ／ 残り " + p.daysLeft + " 日" : "稼働日を消化") +
+        fig("口座", p.equity.toFixed(2), p.seedOk ? "" : "loss",
+            p.seedAlert ? "種銭割れ" : p.seedOk ? "種銭 " + p.seed.toFixed(0) + " ドル維持"
+              : "種銭まで " + (p.seed - p.equity).toFixed(2) + " ドル", p.seedAlert) +
+      "</div>" +
+      '<div class="dow">' + WEEK.map((d, i) =>
+        '<span class="' + (i === 5 ? "sat" : i === 6 ? "sun" : "") + '">' + d + "</span>").join("") +
+      "</div>" +
+      '<div class="grid">' + cells(y, m) + "</div>" +
+      '<div class="entry"><h2>記入 <span class="day">' + selected +
+        "（" + weekdayOf(selected) + "）</span></h2>" + form() + linesOf(selected) + "</div>" +
+      reportBlock(selected) + settingsBlock() +
+      '<div class="foot"><div class="status"><span class="dot ' + sync.code + '"></span>' +
+        "<span>" + esc(sync.text) + '</span></div><div class="acts">' +
+        '<button class="btn ghost" id="restore">読み込む</button>' +
+        '<button class="btn ghost" id="backup">バックアップを保存</button>' +
+        '<input type="file" id="file" accept="application/json,.json" hidden></div></div>';
+
+    wire();
+  }
+
+  const cls = (x) => (x > 0 ? "gain" : x < 0 ? "loss" : "");
+
+  function fig(k, v, c, note, warn) {
+    return '<div class="fig"><div class="k">' + k + "</div>" +
+      '<div class="v ' + c + '">' + v + "</div>" +
+      '<div class="n ' + (warn ? "warn" : "") + '">' + esc(note) + "</div></div>";
+  }
+
+  function cells(y, m) {
+    const pad = (new Date(y, m - 1, 1).getDay() + 6) % 7;
+    const last = new Date(y, m, 0).getDate();
+    const today = todayISO();
+    let html = "";
+    for (let i = 0; i < pad; i++) html += '<div class="cell blank"></div>';
+    for (let d = 1; d <= last; d++) {
+      const key = iso(y, m, d);
+      const rows = dayTrades(key);
+      const v = rows.length ? sum(rows.map(net)) : null;
+      const c = ["cell", key === selected ? "sel" : "", key === today ? "today" : ""]
+        .filter(Boolean).join(" ");
+      html += '<button class="' + c + '" data-day="' + key + '">' +
+        '<span class="d">' + d + "</span>" +
+        (v === null ? "" : '<span class="amt ' + cls(v) + '">' + compact(v) + "</span>") +
+        (rows.length > 1 ? '<span class="cnt">' + rows.length + " 件</span>" : "") +
+        "</button>";
+    }
+    for (let i = 0, tail = (7 - ((pad + last) % 7)) % 7; i < tail; i++) {
+      html += '<div class="cell blank"></div>';
+    }
+    return html;
+  }
+
+  function form() {
+    return '<form class="form" id="entry">' +
+      '<div class="row">' +
+        '<div class="field" style="flex:0 0 168px"><label>結果</label>' +
+          '<div class="seg" id="sign">' +
+            '<button type="button" class="gain" data-sign="1" aria-pressed="' + (sign === 1) + '">利益</button>' +
+            '<button type="button" class="loss" data-sign="-1" aria-pressed="' + (sign === -1) + '">損失</button>' +
+          "</div></div>" +
+        '<div class="field" style="flex:0 0 150px"><label for="amt">金額（ドル）</label>' +
+          '<input id="amt" type="number" step="0.01" min="0" inputmode="decimal" placeholder="15.00" required></div>' +
+        '<div class="field" style="flex:2 1 240px"><label for="memo">メモ</label>' +
+          '<input id="memo" type="text" placeholder="H1上昇の押し目、M15で反発を確認"></div>' +
+      "</div>" +
+      '<details class="more"><summary>銘柄・手数料も残す（任意）</summary><div class="row">' +
+        '<div class="field"><label for="sym">銘柄</label><input id="sym" type="text" placeholder="BTC/USD"></div>' +
+        '<div class="field"><label for="side">方向</label><select id="side">' +
+          '<option value=""></option><option>BUY</option><option>SELL</option></select></div>' +
+        '<div class="field"><label for="fee">手数料（ドル）</label>' +
+          '<input id="fee" type="number" step="0.01" placeholder="0.00"></div>' +
+        '<div class="field"><label for="tags">タグ（スペース区切り）</label>' +
+          '<input id="tags" type="text" placeholder="押し目 順張り"></div>' +
+      "</div></details>" +
+      '<div class="row" style="justify-content:flex-end">' +
+        '<button class="btn primary" type="submit">この日に記録する</button></div>' +
+      "</form>";
+  }
+
+  function linesOf(day) {
+    const rows = dayTrades(day);
+    if (!rows.length) return '<p class="empty">この日はまだ記録がありません（ノートレード）。</p>';
+    const body = rows.map((t) => {
+      const n = net(t);
+      const tags = (t.tags || []).map((x) => " #" + esc(x)).join("");
+      return "<tr>" +
+        '<td class="num ' + cls(n) + '">' + money(n) + "</td>" +
+        "<td>" + esc(t.symbol || "—") + "</td>" +
+        "<td>" + esc(t.side || "—") + "</td>" +
+        '<td class="memo">' + esc(t.memo || "") + tags + "</td>" +
+        '<td style="text-align:right"><button class="del" data-del="' + t.id +
+          '" aria-label="この記録を削除">×</button></td></tr>';
+    }).join("");
+    const tot = sum(rows.map(net));
+    return '<div class="tablewrap"><table class="lines"><thead><tr>' +
+      '<th style="text-align:right">損益 ($)</th><th>銘柄</th><th>方向</th><th>メモ</th><th></th>' +
+      "</tr></thead><tbody>" + body + "</tbody><tfoot><tr>" +
+      '<td class="num ' + cls(tot) + '"><strong>' + money(tot) + "</strong></td>" +
+      '<td colspan="4" class="memo">' + rows.length + " 件</td></tr></tfoot></table></div>";
+  }
+
+  function reportBlock(day) {
+    const r = reportFor(day);
+    const p = r.p;
+    const meter = Math.max(0, Math.min(1, p.achieved)) * 100;
+    const pf = p.perf.pf === Infinity ? "∞" : p.perf.pf.toFixed(2);
+    const n = (x) => '<span class="num">' + x + "</span>";
+    return '<div class="report"><h3>日報 ' + day + "</h3>" +
+      '<section><div class="h">結論</div>' +
+        "<p>本日 " + n(money(r.tp)) + " ドル（" + r.count + "件） ／ 今月累計 " + n(money(p.cum)) +
+          " ドル（約 " + n(yen(p.cum * state.config.usdjpy)) + " 円）</p>" +
+        "<p>達成率 " + n(pct(p.achieved)) + " ／ 目標 " +
+          n(p.goal.toFixed(2)) + " ドル</p>" +
+        '<div class="meter"><i style="width:' + meter.toFixed(1) + '%"></i></div></section>' +
+      '<section><div class="h">根拠</div>' +
+        "<p>① " + n(p.daysDone + "/" + state.config.days) + " 日目・想定ライン " +
+          n(p.onTrack.toFixed(2)) + " ドルに対し " + n(Math.abs(p.gap).toFixed(2)) + " ドルの" +
+          (p.gap >= 0 ? "貯金" : "ビハインド") + " → " + p.status + "</p>" +
+        "<p>② " + (p.daysLeft
+          ? "残り " + n(p.daysLeft) + " 日、必要ペース " + n(p.needPerDay.toFixed(2)) +
+            " ドル/日（平常 " + n(p.parPerDay.toFixed(2)) + " ドル/日）"
+          : "稼働日は消化済み。今月の結果を確定して来月の設定に反映しよう") + "</p>" +
+        "<p>③ 勝率 " + n((p.perf.winRate * 100).toFixed(0) + "%") + "（" + p.perf.wins + "勝" +
+          p.perf.losses + "敗） ／ PF " + n(pf) + " ／ 期待値 " +
+          n(money(p.perf.expectancy)) + " ドル</p></section>" +
+      '<section><div class="h">次のアクション</div>' +
+        "<p>・" + esc(r.action) + "</p><p>・" + esc(r.cheer) + "</p></section></div>";
+  }
+
+  function settingsBlock() {
+    const c = state.config;
+    const goalUsd = c.goalJpy / c.usdjpy;
+    const f = (key, label, value, step) =>
+      '<div class="field"><label for="cfg-' + key + '">' + label + "</label>" +
+      '<input id="cfg-' + key + '" type="number" step="' + step + '" value="' + value +
+      '" data-cfg="' + key + '"></div>';
+    return '<details class="settings"' + (settingsOpen ? " open" : "") + "><summary>目標設定</summary>" +
+      '<div class="grid2">' +
+        f("goalJpy", "月間利益目標（円）", c.goalJpy, 1000) +
+        f("seedJpy", "種銭（円）", c.seedJpy, 1000) +
+        f("usdjpy", "USD/JPY", c.usdjpy, 0.5) +
+        f("days", "月の稼働日数", c.days, 1) +
+        f("riskPct", "1トレードの許容リスク（%）", c.riskPct, 0.1) +
+      "</div>" +
+      '<p class="hint">月間目標 ≒ <span class="num">' + goalUsd.toFixed(2) +
+        '</span> ドル ／ 1日あたり <span class="num">' + (goalUsd / c.days).toFixed(2) +
+        "</span> ドル（約 " + jp((goalUsd / c.days) * c.usdjpy) + " 円）</p></details>";
+  }
+
+  let settingsOpen = false;
+
+  // ------------------------------------------------------------------ 操作
+  function wire() {
+    document.querySelectorAll("[data-nav]").forEach((b) => {
+      b.onclick = () => {
+        const d = +b.dataset.nav;
+        if (d === 0) {
+          const t = new Date();
+          view = { y: t.getFullYear(), m: t.getMonth() + 1 };
+        } else {
+          view = shiftMonth(view.y, view.m, d);
+        }
+        render();
+      };
+    });
+
+    document.querySelectorAll("[data-day]").forEach((b) => {
+      b.onclick = () => { selected = b.dataset.day; render(); };
+    });
+
+    // 入力中の内容を消さないよう、ここは押されたボタンだけを塗り替える
+    document.querySelectorAll("#sign button").forEach((b) => {
+      b.onclick = () => {
+        sign = +b.dataset.sign;
+        document.querySelectorAll("#sign button").forEach((x) => {
+          x.setAttribute("aria-pressed", String(+x.dataset.sign === sign));
+        });
+        document.getElementById("amt").focus();
+      };
+    });
+
+    document.querySelectorAll("[data-del]").forEach((b) => {
+      b.onclick = () => {
+        state.trades = state.trades.filter((t) => t.id !== b.dataset.del);
+        commit();
+      };
+    });
+
+    const settings = document.querySelector("details.settings");
+    if (settings) settings.ontoggle = () => { settingsOpen = settings.open; };
+
+    document.querySelectorAll("[data-cfg]").forEach((i) => {
+      i.onchange = () => {
+        const v = parseFloat(i.value);
+        if (!Number.isFinite(v) || v <= 0) { i.value = state.config[i.dataset.cfg]; return; }
+        state.config[i.dataset.cfg] = v;
+        commit();
+      };
+    });
+
+    document.getElementById("entry").onsubmit = (e) => {
+      e.preventDefault();
+      const amt = parseFloat(document.getElementById("amt").value);
+      if (!Number.isFinite(amt)) return;
+      state.trades.push({
+        id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        date: selected,
+        pnl: round2(Math.abs(amt) * sign),
+        fee: parseFloat(document.getElementById("fee").value) || 0,
+        symbol: (document.getElementById("sym").value || "").trim().toUpperCase(),
+        side: document.getElementById("side").value,
+        memo: (document.getElementById("memo").value || "").trim(),
+        tags: (document.getElementById("tags").value || "").split(/\s+/).filter(Boolean),
+      });
+      state.trades.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+      commit();
+    };
+
+    document.getElementById("backup").onclick = backup;
+    document.getElementById("restore").onclick = () => document.getElementById("file").click();
+    document.getElementById("file").onchange = restore;
+  }
+
+  function ensureStyle() {
+    if (document.getElementById("ledger-css")) return;
+    const s = document.createElement("style");
+    s.id = "ledger-css";
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+
+  function commit() {
+    state.savedAt = Date.now();
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch { /* 保存不可でも続行 */ }
+    setSync("busy", "保存中…");
+    render();
+    schedulePublish();
+  }
+
+  function setSync(code, text) {
+    sync = { code: code, text: text };
+    const dot = document.querySelector(".foot .dot");
+    const label = document.querySelector(".foot .status span:last-child");
+    if (dot) dot.className = "dot " + code;
+    if (label) label.textContent = text;
+  }
+
+  // -------------------------------------------------- 公開版への保存
+  let writer;          // undefined = 未確認, null = 使えない
+  let timer = null;
+
+  async function capability() {
+    if (writer !== undefined) return writer;
+    writer = (window.claude && window.claude.use)
+      ? (await window.claude.use("artifact")) || null : null;
+    return writer;
+  }
+
+  function schedulePublish() {
+    clearTimeout(timer);
+    timer = setTimeout(publish, 1200);   // 連続入力は1回にまとめる
+  }
+
+  async function publish() {
+    const w = await capability();
+    if (!w) { setSync("", "この端末に保存（このブラウザにのみ残ります）"); return; }
+    const json = JSON.stringify({
+      config: state.config, trades: state.trades, savedAt: state.savedAt,
+    }).replace(/</g, "\\u003c");
+    try {
+      await w.publish(shell(json));
+      setSync("ok", "保存しました");
+    } catch (err) {
+      const code = err && err.code;
+      if (code === "conflict") return;            // 勝った版に自動で切り替わる
+      if (code === "rate_limited") { schedulePublish(); return; }
+      setSync("warn", code === "not_writer" || code === "not_granted" || code === "consent_required"
+        ? "閲覧のみのため、変更はこの端末にだけ残ります"
+        : "保存できませんでした（この端末には残っています）");
+    }
+  }
+
+  // ------------------------------------------------------------ 書き出し
+  async function backup() {
+    const json = JSON.stringify({ config: state.config, trades: state.trades }, null, 2);
+    const filename = "trade-ledger-" + todayISO() + ".json";
+    const dl = (window.claude && window.claude.use) ? await window.claude.use("downloads") : null;
+    if (dl) {
+      try { await dl.save({ filename: filename, data: json }); return; }
+      catch (err) { if (err && err.code === "declined") return; }
+    }
+    try {
+      await navigator.clipboard.writeText(json);
+      setSync("ok", "バックアップをクリップボードにコピーしました");
+    } catch {
+      setSync("warn", "バックアップを取得できませんでした");
+    }
+  }
+
+  // 端末をまたぐときは書き出したファイルを読み込む（既存の記録は消さずに足す）
+  async function restore(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    let incoming;
+    try {
+      incoming = JSON.parse(await file.text());
+    } catch {
+      setSync("warn", "読み込めませんでした。書き出した JSON ファイルを選んでください");
+      return;
+    }
+    const rows = Array.isArray(incoming && incoming.trades) ? incoming.trades : null;
+    if (!rows) {
+      setSync("warn", "取引データが入っていないファイルです");
+      return;
+    }
+    const known = new Set(state.trades.map((t) => t.id));
+    let added = 0;
+    for (const t of rows) {
+      if (!t || typeof t.date !== "string" || !Number.isFinite(+t.pnl)) continue;
+      const id = t.id && !known.has(t.id) ? t.id
+        : "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      if (known.has(t.id)) continue;              // 同じ記録は二重に入れない
+      known.add(id);
+      state.trades.push(Object.assign({}, t, { id: id }));
+      added++;
+    }
+    if (incoming.config) Object.assign(state.config, incoming.config);
+    state.trades.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    commit();
+    setSync("ok", added + " 件を読み込みました" + (rows.length - added ? "（重複 " + (rows.length - added) + " 件は除外）" : ""));
+  }
+
+  // ------------------------------------------------------------ 起動
+  render();
+  capability().then((w) => {
+    if (!w) { setSync("", "この端末に保存（このブラウザにのみ残ります）"); return; }
+    setSync("ok", state.trades.length ? "保存済み" : "記録するとこのページに保存されます");
+  });
+};
+APP();
+</script>

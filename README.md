@@ -103,6 +103,32 @@ python cli.py config usdjpy=150 monthly_goal_jpy=80000
 | `app.py` | Streamlit のエントリーポイント（ページ構成と目標設定サイドバー） |
 | `ui.py`, `views/` | 各ページの画面 |
 
+## 配布用の1枚 HTML（人に渡す版）
+
+`web/ledger.html` は、Python もサーバーも不要で動くカレンダー台帳です。
+記録は**開いた人のブラウザにだけ**保存されるので、リンクを配っても記録は混ざりません。
+
+```bash
+python scripts/build_page.py     # web/ledger.html -> docs/index.html
+```
+
+`docs/index.html` は単体で完結しているので、そのまま静的ホスティングに置けます。
+
+**GitHub Pages で配る**
+
+1. リポジトリの Settings → Pages を開く
+2. Source を `Deploy from a branch`、Branch を `main` / `/docs` にして Save
+3. 数分後 `https://<ユーザー名>.github.io/mtf-tool/` で公開される
+
+**独自ドメインで配る**
+
+取得済みのドメインがあれば、Settings → Pages → Custom domain に入力し、
+DNS 側に CNAME（`www` → `<ユーザー名>.github.io`）または A レコードを設定します。
+`docs/CNAME` にドメイン名を1行で置くと設定が保持されます。
+
+データを端末間で移すときは、右下の「バックアップを保存」で JSON を書き出し、
+移行先で「読み込む」から選びます（同じ記録は二重に入りません）。
+
 ## テスト
 
 ```bash
