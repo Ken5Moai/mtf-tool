@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
 </head>
 <body>
-<script type="application/json" id="state">{"config":{"goalJpy":100000,"seedJpy":50000,"usdjpy":155,"days":30,"riskPct":2},"trades":[],"savedAt":0}</script>
+<script type="application/json" id="state">{"config":{"goalJpy":100000,"seedJpy":50000,"usdjpy":155,"days":30,"riskPct":2},"trades":[],"cash":[],"savedAt":0}</script>
 <div class="wrap" id="app"></div>
 <script>
 // このページの正本は APP そのもの。記録を保存するときは APP.toString() から
@@ -79,6 +79,19 @@ body{
   font-family:var(--mono);margin-bottom:2px;
 }
 .rule-thin{height:1px;background:var(--rule-strong);margin-bottom:18px}
+.tabs{display:flex;border-bottom:1px solid var(--rule-strong);margin:2px 0 20px}
+.tabs button{
+  background:none;border:0;padding:10px 18px;font-size:14px;font-family:inherit;
+  color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brass);font-weight:700}
+.tabs button:hover{color:var(--ink)}
+.cashsum{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--rule-strong);background:var(--surface);margin-bottom:22px;
+}
+@media (max-width:660px){.cashsum{grid-template-columns:1fr}
+  .cashsum .fig:nth-child(n+2){border-left:0;border-top:1px solid var(--rule)}}
 
 .nav{display:flex;gap:6px;align-items:center}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -192,6 +205,8 @@ details.more .row{margin-top:12px}
 .del{background:none;border:0;color:var(--muted);font-size:16px;line-height:1;padding:2px 7px;border-radius:2px}
 .del:hover{color:var(--loss);background:var(--loss-wash)}
 .empty{color:var(--muted);font-size:14px;padding:14px 0}
+.note{color:var(--muted);font-size:13px;margin:0 0 18px}
+.form .note{margin:0}
 
 .report{
   margin-top:30px;background:var(--surface);border:1px solid var(--rule-strong);
@@ -265,6 +280,7 @@ details.more .row{margin-top:12px}
     return {
       config: Object.assign({}, DEFAULTS, s.config || {}),
       trades: Array.isArray(s.trades) ? s.trades : [],
+      cash: Array.isArray(s.cash) ? s.cash : [],
       savedAt: +s.savedAt || 0,
     };
   }
@@ -288,6 +304,9 @@ details.more .row{margin-top:12px}
   let selected = todayISO();
   let view = { y: +selected.slice(0, 4), m: +selected.slice(5, 7) };
   let sign = 1;
+  let tab = "ledger";        // ledger | cash
+  let cashKind = "in";       // in | out
+  let cashUnit = "jpy";      // jpy | usd
   let sync = { code: "", text: "保存先を確認中…" };
 
   // ------------------------------------------------------------------ 道具
@@ -328,6 +347,11 @@ details.more .row{margin-top:12px}
   const monthTrades = (y, m) => state.trades.filter((t) => t.date.startsWith(ym(y, m)));
   const dayTrades = (d) => state.trades.filter((t) => t.date === d);
 
+  const cashOf = (kind) => sum(state.cash.filter((c) => c.type === kind).map((c) => +c.usd || 0));
+  const allPnl = () => sum(state.trades.map(net));
+  // 投入元本 = 種銭 + 入金 − 出金。損益と足すと今の口座残高になる。
+  const principal = () => round2(state.config.seedJpy / state.config.usdjpy + cashOf("in") - cashOf("out"));
+
   // ------------------------------------------------------------------ 集計
   function performance(rows) {
     const nets = rows.map(net);
@@ -356,10 +380,11 @@ details.more .row{margin-top:12px}
     const daysDone = new Set(rows.map((t) => t.date)).size;
     const daysLeft = Math.max(c.days - daysDone, 0);
     const goal = c.goalJpy / c.usdjpy;
-    const seed = c.seedJpy / c.usdjpy;
+    const seed = principal();
     const onTrack = c.days ? (goal * daysDone) / c.days : 0;
     const pace = onTrack > 0 ? cum / onTrack : (cum >= 0 ? 1 : 0);
-    const equity = seed + cum;
+    // 残高は全期間の損益で見る（当月だけだと先月分の増減が消えるため）
+    const equity = round2(seed + allPnl());
     return {
       perf, cum, goal, seed, equity, daysDone, daysLeft, onTrack, pace,
       achieved: goal ? cum / goal : 0,
@@ -406,22 +431,45 @@ details.more .row{margin-top:12px}
   // ------------------------------------------------------------------ 描画
   function render() {
     ensureStyle();
+    document.getElementById("app").innerHTML =
+      masthead() + tabBar() + (tab === "cash" ? cashView() : ledgerView()) + foot();
+    wire();
+  }
+
+  function masthead() {
+    const heading = tab === "cash" ? "入出金" : view.y + "年 " + view.m + "月";
+    const nav = tab === "cash" ? "" :
+      '<div class="nav">' +
+        '<button class="btn" data-nav="-1">◀ 前月</button>' +
+        '<button class="btn" data-nav="0">今月</button>' +
+        '<button class="btn" data-nav="1">翌月 ▶</button>' +
+      "</div>";
+    return '<header class="masthead"><div>' +
+      '<div class="sub">TRADE LEDGER</div>' +
+      "<h1>" + heading + "</h1></div>" + nav + "</header>";
+  }
+
+  function tabBar() {
+    const t = (key, label) =>
+      '<button data-tab="' + key + '" aria-selected="' + (tab === key) + '">' + label + "</button>";
+    return '<div class="tabs" role="tablist">' + t("ledger", "台帳") + t("cash", "入出金") + "</div>";
+  }
+
+  function foot() {
+    return '<div class="foot"><div class="status"><span class="dot ' + sync.code + '"></span>' +
+      "<span>" + esc(sync.text) + '</span></div><div class="acts">' +
+      '<button class="btn ghost" id="restore">読み込む</button>' +
+      '<button class="btn ghost" id="backup">バックアップを保存</button>' +
+      '<input type="file" id="file" accept="application/json,.json" hidden></div></div>';
+  }
+
+  function ledgerView() {
     const y = view.y, m = view.m;
     const rows = monthTrades(y, m);
     const total = sum(rows.map(net));
     const p = progress(y, m);
 
-    document.getElementById("app").innerHTML =
-      '<header class="masthead"><div>' +
-        '<div class="sub">TRADE LEDGER</div>' +
-        "<h1>" + y + "年 " + m + "月</h1></div>" +
-        '<div class="nav">' +
-          '<button class="btn" data-nav="-1">◀ 前月</button>' +
-          '<button class="btn" data-nav="0">今月</button>' +
-          '<button class="btn" data-nav="1">翌月 ▶</button>' +
-        "</div></header>" +
-      '<div class="rule-thin"></div>' +
-      '<div class="band">' +
+    return '<div class="band">' +
         fig("この月の損益", money(total), cls(total),
             rows.length + " 件 ／ 約 " + yen(total * state.config.usdjpy) + " 円") +
         fig("達成率", pct(p.achieved), "",
@@ -429,8 +477,8 @@ details.more .row{margin-top:12px}
         fig("必要ペース", p.needPerDay.toFixed(2),
             "", p.daysLeft ? "1日あたり ／ 残り " + p.daysLeft + " 日" : "稼働日を消化") +
         fig("口座", p.equity.toFixed(2), p.seedOk ? "" : "loss",
-            p.seedAlert ? "種銭割れ" : p.seedOk ? "種銭 " + p.seed.toFixed(0) + " ドル維持"
-              : "種銭まで " + (p.seed - p.equity).toFixed(2) + " ドル", p.seedAlert) +
+            p.seedAlert ? "元本割れ" : p.seedOk ? "元本 " + p.seed.toFixed(0) + " ドル維持"
+              : "元本まで " + (p.seed - p.equity).toFixed(2) + " ドル", p.seedAlert) +
       "</div>" +
       '<div class="dow">' + WEEK.map((d, i) =>
         '<span class="' + (i === 5 ? "sat" : i === 6 ? "sun" : "") + '">' + d + "</span>").join("") +
@@ -438,14 +486,86 @@ details.more .row{margin-top:12px}
       '<div class="grid">' + cells(y, m) + "</div>" +
       '<div class="entry"><h2>記入 <span class="day">' + selected +
         "（" + weekdayOf(selected) + "）</span></h2>" + form() + linesOf(selected) + "</div>" +
-      reportBlock(selected) + settingsBlock() +
-      '<div class="foot"><div class="status"><span class="dot ' + sync.code + '"></span>' +
-        "<span>" + esc(sync.text) + '</span></div><div class="acts">' +
-        '<button class="btn ghost" id="restore">読み込む</button>' +
-        '<button class="btn ghost" id="backup">バックアップを保存</button>' +
-        '<input type="file" id="file" accept="application/json,.json" hidden></div></div>';
+      reportBlock(selected) + settingsBlock();
+  }
 
-    wire();
+  // ------------------------------------------------------------ 入出金
+  function cashView() {
+    const inn = cashOf("in");
+    const out = cashOf("out");
+    const seedUsd = state.config.seedJpy / state.config.usdjpy;
+    const base = principal();
+    const equity = round2(base + allPnl());
+    const rate = state.config.usdjpy;
+
+    return '<div class="cashsum">' +
+      fig("入金", money(inn), inn ? "gain" : "",
+          "約 " + yen(inn * rate) + " 円 ／ " + state.cash.filter((c) => c.type === "in").length + " 件") +
+      fig("出金", money(-out), out ? "loss" : "",
+          "約 " + yen(-out * rate) + " 円 ／ " + state.cash.filter((c) => c.type === "out").length + " 件") +
+      fig("投入元本", base.toFixed(2),
+          "", "種銭 " + seedUsd.toFixed(2) + " ドル ＋ 入出金") +
+      "</div>" +
+      '<p class="note">口座残高 <span class="num">' + equity.toFixed(2) +
+        '</span> ドル ＝ 投入元本 <span class="num">' + base.toFixed(2) +
+        '</span> ＋ 全期間の損益 <span class="num">' + money(allPnl()) + "</span></p>" +
+      '<div class="entry"><h2>入出金を記録</h2>' + cashForm() + cashLines() + "</div>";
+  }
+
+  function cashForm() {
+    return '<form class="form" id="cash">' +
+      '<div class="row">' +
+        '<div class="field" style="flex:0 0 168px"><label>区分</label>' +
+          '<div class="seg" id="kind">' +
+            '<button type="button" class="gain" data-kind="in" aria-pressed="' + (cashKind === "in") + '">入金</button>' +
+            '<button type="button" class="loss" data-kind="out" aria-pressed="' + (cashKind === "out") + '">出金</button>' +
+          "</div></div>" +
+        '<div class="field" style="flex:0 0 150px"><label for="cash-date">日付</label>' +
+          '<input id="cash-date" type="date" value="' + todayISO() + '" required></div>' +
+        '<div class="field" style="flex:0 0 130px"><label>通貨</label>' +
+          '<div class="seg" id="unit">' +
+            '<button type="button" data-unit="jpy" aria-pressed="' + (cashUnit === "jpy") + '">円</button>' +
+            '<button type="button" data-unit="usd" aria-pressed="' + (cashUnit === "usd") + '">ドル</button>' +
+          "</div></div>" +
+        '<div class="field" style="flex:0 0 150px"><label for="cash-amt">金額</label>' +
+          '<input id="cash-amt" type="number" step="0.01" min="0" inputmode="decimal" placeholder="' +
+            (cashUnit === "jpy" ? "50000" : "320.00") + '" required></div>' +
+        '<div class="field" style="flex:2 1 200px"><label for="cash-memo">メモ</label>' +
+          '<input id="cash-memo" type="text" placeholder="証券口座へ入金"></div>' +
+      "</div>" +
+      '<p class="note">円で入れると、そのときの USD/JPY <span class="num">' + state.config.usdjpy +
+        "</span> でドルに換算して記録します。</p>" +
+      '<div class="row" style="justify-content:flex-end">' +
+        '<button class="btn primary" type="submit">記録する</button></div>' +
+      "</form>";
+  }
+
+  function cashLines() {
+    if (!state.cash.length) {
+      return '<p class="empty">入出金の記録はまだありません。' +
+        "種銭そのものは「目標設定」の項目なので、ここには入れなくて構いません。</p>";
+    }
+    // state.cash は日付の昇順。反転すると同じ日付でも新しい方が先に来る
+    const rows = state.cash.slice().reverse();
+    let running = principal();
+    const body = rows.map((c) => {
+      const signed = c.type === "in" ? +c.usd : -c.usd;
+      const after = round2(running);            // この記録の直後の元本
+      running = round2(running - signed);       // 1つ前の記録の時点まで巻き戻す
+      return "<tr>" +
+        "<td>" + esc(c.date) + "</td>" +
+        "<td>" + (c.type === "in" ? "入金" : "出金") + "</td>" +
+        '<td class="num ' + cls(signed) + '">' + money(signed) + "</td>" +
+        '<td class="num">' + (c.jpy ? yen(c.type === "in" ? c.jpy : -c.jpy) + " 円" : "—") + "</td>" +
+        '<td class="num">' + after.toFixed(2) + "</td>" +
+        '<td class="memo">' + esc(c.memo || "") + "</td>" +
+        '<td style="text-align:right"><button class="del" data-delcash="' + c.id +
+          '" aria-label="この記録を削除">×</button></td></tr>';
+    }).join("");
+    return '<div class="tablewrap"><table class="lines"><thead><tr>' +
+      "<th>日付</th><th>区分</th><th style=\"text-align:right\">金額 ($)</th>" +
+      "<th style=\"text-align:right\">元の金額</th><th style=\"text-align:right\">元本</th>" +
+      "<th>メモ</th><th></th></tr></thead><tbody>" + body + "</tbody></table></div>";
   }
 
   const cls = (x) => (x > 0 ? "gain" : x < 0 ? "loss" : "");
@@ -628,7 +748,8 @@ details.more .row{margin-top:12px}
       };
     });
 
-    document.getElementById("entry").onsubmit = (e) => {
+    const entryForm = document.getElementById("entry");
+    if (entryForm) entryForm.onsubmit = (e) => {
       e.preventDefault();
       const amt = parseFloat(document.getElementById("amt").value);
       if (!Number.isFinite(amt)) return;
@@ -646,9 +767,66 @@ details.more .row{margin-top:12px}
       commit();
     };
 
-    document.getElementById("backup").onclick = backup;
-    document.getElementById("restore").onclick = () => document.getElementById("file").click();
-    document.getElementById("file").onchange = restore;
+    const on = (id, event, fn) => {
+      const node = document.getElementById(id);
+      if (node) node[event] = fn;
+    };
+    on("backup", "onclick", backup);
+    on("restore", "onclick", () => document.getElementById("file").click());
+    on("file", "onchange", restore);
+
+    document.querySelectorAll("[data-tab]").forEach((b) => {
+      b.onclick = () => { tab = b.dataset.tab; render(); };
+    });
+
+    document.querySelectorAll("#kind button").forEach((b) => {
+      b.onclick = () => {
+        cashKind = b.dataset.kind;
+        document.querySelectorAll("#kind button").forEach((x) => {
+          x.setAttribute("aria-pressed", String(x.dataset.kind === cashKind));
+        });
+      };
+    });
+
+    document.querySelectorAll("#unit button").forEach((b) => {
+      b.onclick = () => {
+        cashUnit = b.dataset.unit;
+        document.querySelectorAll("#unit button").forEach((x) => {
+          x.setAttribute("aria-pressed", String(x.dataset.unit === cashUnit));
+        });
+        const amt = document.getElementById("cash-amt");
+        amt.placeholder = cashUnit === "jpy" ? "50000" : "320.00";
+        amt.focus();
+      };
+    });
+
+    document.querySelectorAll("[data-delcash]").forEach((b) => {
+      b.onclick = () => {
+        state.cash = state.cash.filter((c) => c.id !== b.dataset.delcash);
+        commit();
+      };
+    });
+
+    on("cash", "onsubmit", addCash);
+  }
+
+  function addCash(e) {
+    e.preventDefault();
+    const raw = parseFloat(document.getElementById("cash-amt").value);
+    const date = document.getElementById("cash-date").value;
+    if (!Number.isFinite(raw) || raw <= 0 || !date) return;
+    const rate = state.config.usdjpy;
+    state.cash.push({
+      id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      date: date,
+      type: cashKind,
+      usd: cashUnit === "jpy" ? round2(raw / rate) : round2(raw),
+      jpy: cashUnit === "jpy" ? Math.round(raw) : null,
+      rate: rate,
+      memo: (document.getElementById("cash-memo").value || "").trim(),
+    });
+    state.cash.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    commit();
   }
 
   function ensureStyle() {
@@ -695,7 +873,7 @@ details.more .row{margin-top:12px}
     const w = await capability();
     if (!w) { setSync("", "この端末に保存（このブラウザにのみ残ります）"); return; }
     const json = JSON.stringify({
-      config: state.config, trades: state.trades, savedAt: state.savedAt,
+      config: state.config, trades: state.trades, cash: state.cash, savedAt: state.savedAt,
     }).replace(/</g, "\\u003c");
     try {
       await w.publish(shell(json));
@@ -712,7 +890,8 @@ details.more .row{margin-top:12px}
 
   // ------------------------------------------------------------ 書き出し
   async function backup() {
-    const json = JSON.stringify({ config: state.config, trades: state.trades }, null, 2);
+    const json = JSON.stringify(
+      { config: state.config, trades: state.trades, cash: state.cash }, null, 2);
     const filename = "trade-ledger-" + todayISO() + ".json";
     const dl = (window.claude && window.claude.use) ? await window.claude.use("downloads") : null;
     if (dl) {
@@ -755,10 +934,23 @@ details.more .row{margin-top:12px}
       state.trades.push(Object.assign({}, t, { id: id }));
       added++;
     }
+    let addedCash = 0;
+    if (Array.isArray(incoming.cash)) {
+      const seen = new Set(state.cash.map((c) => c.id));
+      for (const c of incoming.cash) {
+        if (!c || typeof c.date !== "string" || !Number.isFinite(+c.usd) || seen.has(c.id)) continue;
+        seen.add(c.id);
+        state.cash.push(c);
+        addedCash++;
+      }
+      state.cash.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+    }
     if (incoming.config) Object.assign(state.config, incoming.config);
     state.trades.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
     commit();
-    setSync("ok", added + " 件を読み込みました" + (rows.length - added ? "（重複 " + (rows.length - added) + " 件は除外）" : ""));
+    const skipped = rows.length - added;
+    setSync("ok", "取引 " + added + " 件・入出金 " + addedCash + " 件を読み込みました" +
+      (skipped ? "（重複 " + skipped + " 件は除外）" : ""));
   }
 
   // ------------------------------------------------------------ 起動
