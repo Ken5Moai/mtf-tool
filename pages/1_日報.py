@@ -1,4 +1,4 @@
-"""Streamlit page: 毎日の利益を記録して達成率とペースを確認する日報ダッシュボード。"""
+"""日報ページ: 結論 -> 根拠 -> 次のアクション の3部構成でその日を締める。"""
 from __future__ import annotations
 
 from datetime import date
@@ -6,54 +6,40 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 
-from journal import add_entry, load, parse_entry, report, save, summarize
+import report
+import store
+from stats import daily_pnl, progress
+from ui import config_sidebar, data, style, trades_frame
 
-st.set_page_config(page_title="日報 / Daily journal", page_icon=":memo:", layout="wide")
-st.title("日報ダッシュボード")
-st.caption("「今日の利益：〇ドル、メモ：〇〇」を入力 → 累計・達成率・必要ペースを自動集計")
+st.set_page_config(page_title="日報", page_icon=":memo:", layout="wide")
+style()
 
-data = load()
-cfg = data["config"]
+d = data()
+config_sidebar(d)
 
-with st.sidebar:
-    st.header("目標設定")
-    cfg["monthly_goal_jpy"] = st.number_input("月間利益目標 (円)", 10_000, 10_000_000, int(cfg["monthly_goal_jpy"]), 10_000)
-    cfg["seed_jpy"] = st.number_input("種銭 (円)", 10_000, 10_000_000, int(cfg["seed_jpy"]), 10_000)
-    cfg["usdjpy"] = st.number_input("USD/JPY", 80.0, 300.0, float(cfg["usdjpy"]), 0.5)
-    cfg["trading_days"] = st.number_input("月の稼働日数", 1, 31, int(cfg["trading_days"]))
-    if st.button("設定を保存", use_container_width=True):
-        save(data)
-        st.success("保存しました")
+st.title("日報")
+on = st.date_input("対象日", value=date.today())
+p = progress(d, on)
+rows = store.month_of(d["trades"], p["month"])
 
-text = st.text_input("今日の入力", placeholder="今日の利益：15ドル、メモ：BTC 押し目買いで勝ち")
-c1, c2 = st.columns([1, 4])
-if c1.button("記録する", type="primary", use_container_width=True) and text:
-    try:
-        profit, memo = parse_entry(text)
-    except ValueError as e:
-        st.error(str(e))
-    else:
-        add_entry(data, profit, memo)
-        save(data)
-        st.success(f"{date.today().isoformat()} に {profit:+.2f} ドルを記録しました")
+st.progress(min(max(p["achieved"], 0.0), 1.0))
+st.code(report.daily(p, rows), language=None)
 
-s = summarize(data)
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("本日", f"{s['today_profit']:+,.2f} $")
-m2.metric("今月累計", f"{s['cum_usd']:,.2f} $", f"想定比 {s['gap_usd']:+,.2f} $")
-m3.metric("達成率", f"{s['achieved']*100:.1f} %", s["status"])
-m4.metric("必要ペース/日", f"{s['need_per_day']:,.2f} $", f"残り {s['days_left']} 日")
-
-st.progress(min(max(s["achieved"], 0.0), 1.0))
-st.code(report(s), language=None)
-
-rows = [e for e in data["entries"] if str(e["date"]).startswith(s["month"])]
 if rows:
-    df = pd.DataFrame(rows)
-    df["累計"] = df["profit_usd"].cumsum()
+    daily = daily_pnl(rows)
+    df = pd.DataFrame({"日付": list(daily), "損益($)": list(daily.values())})
+    df["累計($)"] = df["損益($)"].cumsum()
+    df["想定ライン($)"] = [p["par_per_day"] * (i + 1) for i in range(len(df))]
+
     st.subheader("今月の推移")
-    st.line_chart(df.set_index("date")["累計"])
-    st.dataframe(df.rename(columns={"date": "日付", "profit_usd": "利益($)", "memo": "メモ"}),
-                 use_container_width=True, hide_index=True)
+    st.line_chart(df.set_index("日付")[["累計($)", "想定ライン($)"]])
+    st.bar_chart(df.set_index("日付")["損益($)"])
+
+    with st.expander("今日の取引"):
+        today = [t for t in rows if t.date == on.isoformat()]
+        if today:
+            st.dataframe(trades_frame(today), width="stretch", hide_index=True)
+        else:
+            st.write("この日の記録はありません（ノートレード）。")
 else:
-    st.info("今月の記録はまだありません。上のフォームから最初の1件を入力してください。")
+    st.info("今月の記録はまだありません。")
