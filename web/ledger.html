@@ -12,6 +12,8 @@ const APP = function () {
 
   const LS_KEY = "trade-ledger-shared-v1";
   const WEEK = ["月", "火", "水", "木", "金", "土", "日"];
+  const CATEGORIES = ["FX", "暗号通貨", "バイナリー", "stake"];
+  const OTHER = "その他";
   const DEFAULTS = { goalJpy: 100000, seedJpy: 50000, usdjpy: 155, days: 30, riskPct: 2 };
   const FONTS = "https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap";
 
@@ -199,6 +201,24 @@ details.more .row{margin-top:12px}
 .del:hover{color:var(--loss);background:var(--loss-wash)}
 .empty{color:var(--muted);font-size:14px;padding:14px 0}
 .note{color:var(--muted);font-size:13px;margin:0 0 18px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{
+  background:var(--surface-2);border:1px solid var(--rule-strong);border-radius:2px;
+  padding:8px 13px;font-size:13px;font-family:inherit;color:var(--muted);
+}
+.chips button[aria-pressed="true"]{
+  background:var(--brass-wash);border-color:var(--brass);color:var(--brass);font-weight:700;
+}
+.chips button:hover{color:var(--ink)}
+.split{
+  margin-top:26px;background:var(--surface);border:1px solid var(--rule-strong);padding:18px 20px;
+}
+.split h3{font-family:var(--serif);font-size:17px;margin:0 0 4px;font-weight:700}
+.split .lines{margin-top:10px}
+.bar{display:block;height:4px;background:var(--rule);margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%}
+.bar i.gain{background:var(--gain)}
+.bar i.loss{background:var(--loss)}
 .form .note{margin:0}
 
 .report{
@@ -300,6 +320,20 @@ details.more .row{margin-top:12px}
   let tab = "ledger";        // ledger | cash
   let cashKind = "in";       // in | out
   let cashUnit = "jpy";      // jpy | usd
+  let category = "";         // 直近に使った区分を引き継ぐ
+  let otherText = "";
+
+  // 毎回選び直さずに済むよう、最後に記録した区分を初期選択にする
+  const lastTrade = state.trades[state.trades.length - 1];
+  const lastCat = lastTrade ? (lastTrade.category || "").trim() : "";
+  if (!lastCat) {
+    category = CATEGORIES[0];
+  } else if (CATEGORIES.includes(lastCat)) {
+    category = lastCat;
+  } else {
+    category = OTHER;
+    otherText = lastCat;
+  }
   let sync = { code: "", text: "保存先を確認中…" };
 
   // ------------------------------------------------------------------ 道具
@@ -479,7 +513,7 @@ details.more .row{margin-top:12px}
       '<div class="grid">' + cells(y, m) + "</div>" +
       '<div class="entry"><h2>記入 <span class="day">' + selected +
         "（" + weekdayOf(selected) + "）</span></h2>" + form() + linesOf(selected) + "</div>" +
-      reportBlock(selected) + settingsBlock();
+      splitBlock(y, m) + reportBlock(selected) + settingsBlock();
   }
 
   // ------------------------------------------------------------ 入出金
@@ -595,6 +629,7 @@ details.more .row{margin-top:12px}
 
   function form() {
     return '<form class="form" id="entry">' +
+      '<div class="field" style="flex:none"><label>区分</label>' + chips() + "</div>" +
       '<div class="row">' +
         '<div class="field" style="flex:0 0 168px"><label>結果</label>' +
           '<div class="seg" id="sign">' +
@@ -620,6 +655,73 @@ details.more .row{margin-top:12px}
       "</form>";
   }
 
+  function chips() {
+    const c = CATEGORIES.map((name) =>
+      '<button type="button" data-cat="' + esc(name) + '" aria-pressed="' +
+      (category === name) + '">' + esc(name) + "</button>").join("");
+    const isOther = category === OTHER;
+    return '<div class="chips" id="cats">' + c +
+      '<button type="button" data-cat="' + OTHER + '" aria-pressed="' + isOther + '">' +
+        OTHER + "</button></div>" +
+      (isOther
+        ? '<input id="cat-other" type="text" placeholder="区分を入力（例: 日経225）" value="' +
+          esc(otherText) + '" style="margin-top:8px">'
+        : "");
+  }
+
+  // 記録に付いた区分。未入力のものは「未分類」でまとめる
+  const catOf = (t) => (t.category || "").trim() || "未分類";
+
+  function byCategory(rows) {
+    const map = new Map();
+    for (const t of rows) {
+      const k = catOf(t);
+      if (!map.has(k)) map.set(k, []);
+      map.get(k).push(t);
+    }
+    return [...map].map(([name, list]) => {
+      const nets = list.map(net);
+      const wins = nets.filter((x) => x > 0).length;
+      const losses = nets.filter((x) => x < 0).length;
+      return {
+        name, count: list.length, net: sum(nets),
+        winRate: wins + losses ? wins / (wins + losses) : 0,
+      };
+    }).sort((a, b) => b.net - a.net);
+  }
+
+  function splitBlock(y, m) {
+    const rows = monthTrades(y, m);
+    if (!rows.length) return "";
+    const groups = byCategory(rows);
+    const rate = state.config.usdjpy;
+    const scale = Math.max(...groups.map((g) => Math.abs(g.net)), 1);
+    const body = groups.map((g) => {
+      const width = (Math.abs(g.net) / scale) * 100;
+      return "<tr>" +
+        "<td>" + esc(g.name) +
+          '<span class="bar"><i class="' + cls(g.net) + '" style="width:' +
+            width.toFixed(1) + '%"></i></span></td>' +
+        '<td class="num">' + g.count + "</td>" +
+        '<td class="num">' + (g.winRate * 100).toFixed(0) + "%</td>" +
+        '<td class="num ' + cls(g.net) + '">' + money(g.net) + "</td>" +
+        '<td class="num">' + yen(g.net * rate) + "</td></tr>";
+    }).join("");
+    const total = sum(rows.map(net));
+    return '<div class="split"><h3>カテゴリー別 収支</h3>' +
+      '<p class="note" style="margin:0">' + y + "年" + m + "月 ／ " + groups.length + " 区分</p>" +
+      '<div class="tablewrap"><table class="lines"><thead><tr>' +
+        '<th>区分</th><th style="text-align:right">件数</th>' +
+        '<th style="text-align:right">勝率</th><th style="text-align:right">損益 ($)</th>' +
+        '<th style="text-align:right">円</th>' +
+      "</tr></thead><tbody>" + body + "</tbody><tfoot><tr>" +
+        "<td><strong>合計</strong></td>" +
+        '<td class="num">' + rows.length + "</td><td></td>" +
+        '<td class="num ' + cls(total) + '"><strong>' + money(total) + "</strong></td>" +
+        '<td class="num">' + yen(total * rate) + "</td>" +
+      "</tr></tfoot></table></div></div>";
+  }
+
   function linesOf(day) {
     const rows = dayTrades(day);
     if (!rows.length) return '<p class="empty">この日はまだ記録がありません（ノートレード）。</p>';
@@ -628,6 +730,7 @@ details.more .row{margin-top:12px}
       const tags = (t.tags || []).map((x) => " #" + esc(x)).join("");
       return "<tr>" +
         '<td class="num ' + cls(n) + '">' + money(n) + "</td>" +
+        "<td>" + esc(catOf(t)) + "</td>" +
         "<td>" + esc(t.symbol || "—") + "</td>" +
         "<td>" + esc(t.side || "—") + "</td>" +
         '<td class="memo">' + esc(t.memo || "") + tags + "</td>" +
@@ -636,10 +739,11 @@ details.more .row{margin-top:12px}
     }).join("");
     const tot = sum(rows.map(net));
     return '<div class="tablewrap"><table class="lines"><thead><tr>' +
-      '<th style="text-align:right">損益 ($)</th><th>銘柄</th><th>方向</th><th>メモ</th><th></th>' +
+      '<th style="text-align:right">損益 ($)</th><th>区分</th><th>銘柄</th><th>方向</th>' +
+      "<th>メモ</th><th></th>" +
       "</tr></thead><tbody>" + body + "</tbody><tfoot><tr>" +
       '<td class="num ' + cls(tot) + '"><strong>' + money(tot) + "</strong></td>" +
-      '<td colspan="4" class="memo">' + rows.length + " 件</td></tr></tfoot></table></div>";
+      '<td colspan="5" class="memo">' + rows.length + " 件</td></tr></tfoot></table></div>";
   }
 
   function reportBlock(day) {
@@ -722,6 +826,17 @@ details.more .row{margin-top:12px}
       };
     });
 
+    document.querySelectorAll("[data-cat]").forEach((b) => {
+      b.onclick = () => {
+        const other = document.getElementById("cat-other");
+        if (other) otherText = other.value.trim();
+        category = b.dataset.cat;
+        render();
+        const box = document.getElementById("cat-other");
+        if (box) box.focus();
+      };
+    });
+
     document.querySelectorAll("[data-del]").forEach((b) => {
       b.onclick = () => {
         state.trades = state.trades.filter((t) => t.id !== b.dataset.del);
@@ -746,9 +861,12 @@ details.more .row{margin-top:12px}
       e.preventDefault();
       const amt = parseFloat(document.getElementById("amt").value);
       if (!Number.isFinite(amt)) return;
+      const other = document.getElementById("cat-other");
+      if (other) otherText = other.value.trim();
       state.trades.push({
         id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         date: selected,
+        category: category === OTHER ? (otherText || OTHER) : category,
         pnl: round2(Math.abs(amt) * sign),
         fee: parseFloat(document.getElementById("fee").value) || 0,
         symbol: (document.getElementById("sym").value || "").trim().toUpperCase(),
