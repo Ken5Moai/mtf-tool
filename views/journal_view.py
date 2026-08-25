@@ -9,13 +9,9 @@ import streamlit as st
 import report
 import store
 from stats import daily_pnl, progress
-from ui import config_sidebar, data, style, trades_frame
-
-st.set_page_config(page_title="日報", page_icon=":memo:", layout="wide")
-style()
+from ui import data, trades_frame
 
 d = data()
-config_sidebar(d)
 
 st.title("日報")
 on = st.date_input("対象日", value=date.today())

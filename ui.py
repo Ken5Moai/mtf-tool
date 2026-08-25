@@ -8,10 +8,10 @@ import store
 
 CSS = """
 <style>
+/* 文字色は指定しない（ライト／ダークどちらのテーマでも読めるようにするため） */
 .block-container {padding-top: 2.2rem; max-width: 1200px;}
-[data-testid="stMetric"] {background:#161b22; border:1px solid #2b3138;
-    padding:12px 16px; border-radius:10px;}
-[data-testid="stMetricLabel"] {color:#8b949e;}
+[data-testid="stMetric"] {background: rgba(128,128,128,.08);
+    border: 1px solid rgba(128,128,128,.25); padding: 12px 16px; border-radius: 10px;}
 </style>
 """
 
@@ -60,8 +60,13 @@ def config_sidebar(d: dict) -> None:
 
 def trades_frame(trades: list[store.Trade]) -> pd.DataFrame:
     """取引一覧を表示用の DataFrame にする（新しい順）。"""
-    return pd.DataFrame([{
+    df = pd.DataFrame([{
         "ID": t.id, "日付": t.date, "銘柄": t.symbol or "-", "方向": t.side or "-",
         "損益($)": t.net, "R": t.r_multiple, "手数料($)": t.fee,
         "メモ": t.memo, "タグ": " ".join(t.tags),
     } for t in sorted(trades, key=lambda t: (t.date, t.id), reverse=True)])
+    # R を出せるトレードが1件も無ければ、その列ごと表示しない
+    df["R"] = pd.to_numeric(df["R"], errors="coerce")
+    if df["R"].isna().all():
+        df = df.drop(columns=["R"])
+    return df

@@ -10,13 +10,9 @@ import report
 import store
 from stats import (by_symbol, by_tag, by_weekday, equity_curve, performance,
                    progress)
-from ui import config_sidebar, data, style
-
-st.set_page_config(page_title="分析", page_icon=":bar_chart:", layout="wide")
-style()
+from ui import data
 
 d = data()
-config_sidebar(d)
 
 st.title("分析")
 

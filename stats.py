@@ -4,7 +4,8 @@
 """
 from __future__ import annotations
 
-from collections import defaultdict
+import calendar
+from collections import Counter, defaultdict
 from datetime import date, datetime
 from typing import Any, Callable
 
@@ -115,6 +116,33 @@ def daily_pnl(trades: list[Trade]) -> dict[str, float]:
     for t in trades:
         out[t.date] = round(out[t.date] + t.net, 2)
     return dict(sorted(out.items()))
+
+
+def month_grid(year: int, month: int, trades: list[Trade]) -> list[list[dict | None]]:
+    """
+    カレンダー表示用に、月曜始まりの週ごとの日セルを返す。
+    前後月にはみ出すマスは None。各セルは {day, date, pnl, trades}。
+    """
+    daily = daily_pnl(trades)
+    counts = Counter(t.date for t in trades)
+    grid: list[list[dict | None]] = []
+    for week in calendar.Calendar(firstweekday=0).monthdayscalendar(year, month):
+        row: list[dict | None] = []
+        for d in week:
+            if d == 0:
+                row.append(None)
+                continue
+            key = date(year, month, d).isoformat()
+            row.append({"day": d, "date": key,
+                        "pnl": daily.get(key), "trades": counts.get(key, 0)})
+        grid.append(row)
+    return grid
+
+
+def shift_month(year: int, month: int, delta: int) -> tuple[int, int]:
+    """年月を delta か月ずらす。"""
+    i = year * 12 + (month - 1) + delta
+    return i // 12, i % 12 + 1
 
 
 # ------------------------------------------------------------------- goal
