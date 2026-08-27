@@ -411,16 +411,29 @@ details.more .row{margin-top:12px}
     const rows = monthTrades(y, m);
     const perf = performance(rows);
     const cum = perf.net;
-    const daysDone = new Set(rows.map((t) => t.date)).size;
-    const daysLeft = Math.max(c.days - daysDone, 0);
+    const daysDone = new Set(rows.map((t) => t.date)).size;   // 記録した日数
     const goal = c.goalJpy / c.usdjpy;
     const seed = principal();
-    const onTrack = c.days ? (goal * daysDone) / c.days : 0;
+
+    // 残り日数はカレンダーで数える。記録していない日も過ぎれば戻らないので、
+    // 「稼働日数 − 記録した日数」では月末が来ても残っているように見えてしまう。
+    const dim = new Date(y, m, 0).getDate();
+    const now = new Date();
+    const cy = now.getFullYear(), cm = now.getMonth() + 1, cd = now.getDate();
+    const isCurrent = y === cy && m === cm;
+    const isPast = y < cy || (y === cy && m < cm);
+    const elapsed = isPast ? dim : isCurrent ? cd : 0;
+    // 今日ぶんがまだ未記録なら、今日も残り日数に数える
+    const todayOpen = isCurrent && dayTrades(iso(cy, cm, cd)).length === 0;
+    const daysLeft = isPast ? 0 : isCurrent ? dim - cd + (todayOpen ? 1 : 0) : dim;
+
+    const onTrack = dim ? (goal * elapsed) / dim : 0;
     const pace = onTrack > 0 ? cum / onTrack : (cum >= 0 ? 1 : 0);
     // 残高は全期間の損益で見る（当月だけだと先月分の増減が消えるため）
     const equity = round2(seed + allPnl());
     return {
       perf, cum, goal, seed, equity, daysDone, daysLeft, onTrack, pace,
+      dim, elapsed,
       achieved: goal ? cum / goal : 0,
       gap: round2(cum - onTrack),
       needPerDay: daysLeft ? (goal - cum) / daysLeft : 0,
@@ -446,7 +459,7 @@ details.more .row{margin-top:12px}
     } else if (p.daysLeft && p.needPerDay > p.parPerDay * 1.5) {
       action = "必要ペースが平常の1.5倍。狙う回数は増やさず、RR 2.0 以上の場面だけに絞る。";
     } else if (!p.daysLeft) {
-      action = "稼働日を消化。今月の数字を確定して、勝ちパターンを来月のルールに書き写す。";
+      action = "今月は終了。数字を確定して、勝ちパターンを来月のルールに書き写す。";
     } else {
       action = "明日も " + p.parPerDay.toFixed(2) + " ドル（約 " + jp(p.parPerDay * state.config.usdjpy)
         + " 円）を淡々と。1トレードの許容損失は " + p.risk.toFixed(2) + " ドルまで。";
@@ -509,7 +522,7 @@ details.more .row{margin-top:12px}
         fig("達成率", pct(p.achieved), "",
             "目標 " + p.goal.toFixed(2) + " ドル ／ " + p.status) +
         fig("必要ペース", p.needPerDay.toFixed(2),
-            "", p.daysLeft ? "1日あたり ／ 残り " + p.daysLeft + " 日" : "稼働日を消化") +
+            "", p.daysLeft ? "1日あたり ／ 月末まで " + p.daysLeft + " 日" : "今月は終了") +
         fig("口座", p.equity.toFixed(2), p.seedOk ? "" : "loss",
             p.seedAlert ? "元本割れ" : p.seedOk ? "元本 " + p.seed.toFixed(0) + " ドル維持"
               : "元本まで " + (p.seed - p.equity).toFixed(2) + " ドル", p.seedAlert) +
@@ -767,13 +780,14 @@ details.more .row{margin-top:12px}
           n(p.goal.toFixed(2)) + " ドル</p>" +
         '<div class="meter"><i style="width:' + meter.toFixed(1) + '%"></i></div></section>' +
       '<section><div class="h">根拠</div>' +
-        "<p>① " + n(p.daysDone + "/" + state.config.days) + " 日目・想定ライン " +
-          n(p.onTrack.toFixed(2)) + " ドルに対し " + n(Math.abs(p.gap).toFixed(2)) + " ドルの" +
+        "<p>① " + n(p.elapsed + "/" + p.dim) + " 日経過（記録 " + n(p.daysDone) +
+          " 日）・想定ライン " + n(p.onTrack.toFixed(2)) + " ドルに対し " +
+          n(Math.abs(p.gap).toFixed(2)) + " ドルの" +
           (p.gap >= 0 ? "貯金" : "ビハインド") + " → " + p.status + "</p>" +
         "<p>② " + (p.daysLeft
-          ? "残り " + n(p.daysLeft) + " 日、必要ペース " + n(p.needPerDay.toFixed(2)) +
-            " ドル/日（平常 " + n(p.parPerDay.toFixed(2)) + " ドル/日）"
-          : "稼働日は消化済み。今月の結果を確定して来月の設定に反映しよう") + "</p>" +
+          ? "残り " + n(p.daysLeft) + " 日（月末まで）、必要ペース " + n(p.needPerDay.toFixed(2)) +
+            " ドル/日（計画 " + n(p.parPerDay.toFixed(2)) + " ドル/日）"
+          : "今月は終了。結果を確定して来月の設定に反映しよう") + "</p>" +
         "<p>③ 勝率 " + n((p.perf.winRate * 100).toFixed(0) + "%") + "（" + p.perf.wins + "勝" +
           p.perf.losses + "敗） ／ PF " + n(pf) + " ／ 期待値 " +
           n(money(p.perf.expectancy)) + " ドル</p></section>" +
