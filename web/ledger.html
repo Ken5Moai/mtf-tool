@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
-<script type="application/json" id="state">{"config":{"goalJpy":100000,"seedJpy":50000,"usdjpy":155,"days":30,"riskPct":2},"trades":[],"cash":[],"savedAt":0}</script>
+<script type="application/json" id="state">{"config":{"goalJpy":100000,"seed":50000,"seedCcy":"jpy","usdjpy":155,"days":30,"riskPct":2},"trades":[],"cash":[],"savedAt":0}</script>
 <div class="wrap" id="app"></div>
 <script>
 // このページの正本は APP そのもの。記録を保存するときは APP.toString() から
@@ -14,7 +14,7 @@ const APP = function () {
   const WEEK = ["月", "火", "水", "木", "金", "土", "日"];
   const CATEGORIES = ["FX", "暗号通貨", "バイナリー", "stake"];
   const OTHER = "その他";
-  const DEFAULTS = { goalJpy: 100000, seedJpy: 50000, usdjpy: 155, days: 30, riskPct: 2 };
+  const DEFAULTS = { goalJpy: 100000, seed: 50000, seedCcy: "jpy", usdjpy: 155, days: 30, riskPct: 2 };
   const FONTS = "https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap";
 
   const CSS = String.raw`
@@ -172,7 +172,8 @@ input,select{
 input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .seg{display:flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
 .seg button{flex:1;background:var(--surface-2);border:0;padding:9px 10px;font-size:14px;color:var(--muted)}
-.seg button[aria-pressed="true"]{font-weight:700}
+/* 利益/損失・入金/出金 は下の gain/loss 指定が勝つ。ここは円/ドルなど中立の切り替え用 */
+.seg button[aria-pressed="true"]{font-weight:700;background:var(--brass-wash);color:var(--brass)}
 .seg button.gain[aria-pressed="true"]{background:var(--gain-wash);color:var(--gain)}
 .seg button.loss[aria-pressed="true"]{background:var(--loss-wash);color:var(--loss)}
 details.more{border-top:1px solid var(--rule);padding-top:12px}
@@ -290,8 +291,15 @@ details.more .row{margin-top:12px}
   // ------------------------------------------------------------------ 状態
   function normalize(raw) {
     const s = raw && typeof raw === "object" ? raw : {};
+    const config = Object.assign({}, DEFAULTS, s.config || {});
+    // 旧データは種銭を円で持っていたので、金額＋通貨の形に移す
+    if (s.config && s.config.seed === undefined && s.config.seedJpy !== undefined) {
+      config.seed = s.config.seedJpy;
+      config.seedCcy = "jpy";
+    }
+    delete config.seedJpy;
     return {
-      config: Object.assign({}, DEFAULTS, s.config || {}),
+      config: config,
       trades: Array.isArray(s.trades) ? s.trades : [],
       cash: Array.isArray(s.cash) ? s.cash : [],
       savedAt: +s.savedAt || 0,
@@ -374,10 +382,15 @@ details.more .row{margin-top:12px}
   const monthTrades = (y, m) => state.trades.filter((t) => t.date.startsWith(ym(y, m)));
   const dayTrades = (d) => state.trades.filter((t) => t.date === d);
 
+  // 種銭のドル額。ドル建てで持っていればレートが動いても変わらない
+  const seedUsd = () => {
+    const c = state.config;
+    return c.seedCcy === "usd" ? +c.seed : c.seed / c.usdjpy;
+  };
   const cashOf = (kind) => sum(state.cash.filter((c) => c.type === kind).map((c) => +c.usd || 0));
   const allPnl = () => sum(state.trades.map(net));
   // 投入元本 = 種銭 + 入金 − 出金。損益と足すと今の口座残高になる。
-  const principal = () => round2(state.config.seedJpy / state.config.usdjpy + cashOf("in") - cashOf("out"));
+  const principal = () => round2(seedUsd() + cashOf("in") - cashOf("out"));
 
   // ------------------------------------------------------------------ 集計
   function performance(rows) {
@@ -533,7 +546,6 @@ details.more .row{margin-top:12px}
   function cashView() {
     const inn = cashOf("in");
     const out = cashOf("out");
-    const seedUsd = state.config.seedJpy / state.config.usdjpy;
     const base = principal();
     const equity = round2(base + allPnl());
     const rate = state.config.usdjpy;
@@ -544,7 +556,7 @@ details.more .row{margin-top:12px}
       fig("出金", money(-out), out ? "loss" : "",
           "約 " + yen(-out * rate) + " 円 ／ " + state.cash.filter((c) => c.type === "out").length + " 件") +
       fig("投入元本", base.toFixed(2),
-          "", "種銭 " + seedUsd.toFixed(2) + " ドル ＋ 入出金") +
+          "", "種銭 " + seedUsd().toFixed(2) + " ドル ＋ 入出金") +
       "</div>" +
       '<p class="note">口座残高 <span class="num">' + equity.toFixed(2) +
         '</span> ドル ＝ 投入元本 <span class="num">' + base.toFixed(2) +
@@ -798,14 +810,28 @@ details.more .row{margin-top:12px}
     return '<details class="settings"' + (settingsOpen ? " open" : "") + "><summary>目標設定</summary>" +
       '<div class="grid2">' +
         f("goalJpy", "月間利益目標（円）", c.goalJpy, 1000) +
-        f("seedJpy", "種銭（円）", c.seedJpy, 1000) +
+        seedField(c) +
         f("usdjpy", "USD/JPY", c.usdjpy, 0.5) +
         f("days", "月の稼働日数", c.days, 1) +
         f("riskPct", "1トレードの許容リスク（%）", c.riskPct, 0.1) +
       "</div>" +
       '<p class="hint">月間目標 ≒ <span class="num">' + goalUsd.toFixed(2) +
         '</span> ドル ／ 1日あたり <span class="num">' + (goalUsd / c.days).toFixed(2) +
-        "</span> ドル（約 " + jp((goalUsd / c.days) * c.usdjpy) + " 円）</p></details>";
+        "</span> ドル（約 " + jp((goalUsd / c.days) * c.usdjpy) + " 円）<br>" +
+        '種銭 ≒ <span class="num">' + seedUsd().toFixed(2) + "</span> ドル（約 " +
+        jp(seedUsd() * c.usdjpy) + " 円）</p></details>";
+  }
+
+  // 口座がドル建てなら種銭もドルで持つ。レートを直すたびに計算し直さずに済む
+  function seedField(c) {
+    const usd = c.seedCcy === "usd";
+    return '<div class="field"><label for="cfg-seed">種銭（' + (usd ? "ドル" : "円") + "）</label>" +
+      '<div class="seg" id="seedccy">' +
+        '<button type="button" data-ccy="jpy" aria-pressed="' + (!usd) + '">円</button>' +
+        '<button type="button" data-ccy="usd" aria-pressed="' + usd + '">ドル</button>' +
+      "</div>" +
+      '<input id="cfg-seed" type="number" step="' + (usd ? "1" : "1000") +
+        '" value="' + c.seed + '" data-cfg="seed"></div>';
   }
 
   let settingsOpen = false;
@@ -860,6 +886,19 @@ details.more .row{margin-top:12px}
 
     const settings = document.querySelector("details.settings");
     if (settings) settings.ontoggle = () => { settingsOpen = settings.open; };
+
+    document.querySelectorAll("#seedccy button").forEach((b) => {
+      b.onclick = () => {
+        const to = b.dataset.ccy;
+        const c = state.config;
+        if (c.seedCcy === to) return;
+        // 実際の金額が変わらないよう、そのときのレートで換算する
+        c.seed = to === "usd" ? round2(c.seed / c.usdjpy) : Math.round(c.seed * c.usdjpy);
+        c.seedCcy = to;
+        settingsOpen = true;
+        commit();
+      };
+    });
 
     document.querySelectorAll("[data-cfg]").forEach((i) => {
       i.onchange = () => {
