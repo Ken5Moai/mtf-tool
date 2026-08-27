@@ -830,7 +830,7 @@ details.more .row{margin-top:12px}
         '<button type="button" data-ccy="jpy" aria-pressed="' + (!usd) + '">円</button>' +
         '<button type="button" data-ccy="usd" aria-pressed="' + usd + '">ドル</button>' +
       "</div>" +
-      '<input id="cfg-seed" type="number" step="' + (usd ? "1" : "1000") +
+      '<input id="cfg-seed" type="number" min="0" step="' + (usd ? "1" : "1000") +
         '" value="' + c.seed + '" data-cfg="seed"></div>';
   }
 
@@ -903,7 +903,12 @@ details.more .row{margin-top:12px}
     document.querySelectorAll("[data-cfg]").forEach((i) => {
       i.onchange = () => {
         const v = parseFloat(i.value);
-        if (!Number.isFinite(v) || v <= 0) { i.value = state.config[i.dataset.cfg]; return; }
+        // 未入金・ボーナスのみの口座では種銭0が正しい値なので、0 を許す
+        const zeroOk = i.dataset.cfg === "seed";
+        if (!Number.isFinite(v) || v < 0 || (!zeroOk && v === 0)) {
+          i.value = state.config[i.dataset.cfg];
+          return;
+        }
         state.config[i.dataset.cfg] = v;
         commit();
       };
