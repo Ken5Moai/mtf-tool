@@ -2,7 +2,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap">
-<script type="application/json" id="state">{"config":{"goalJpy":100000,"seed":50000,"seedCcy":"jpy","usdjpy":155,"days":30,"riskPct":2},"trades":[],"cash":[],"savedAt":0}</script>
+<script type="application/json" id="state">{"config":{"goalJpy":100000,"seed":50000,"seedCcy":"jpy","usdjpy":155,"days":30,"riskPct":2,"dispCcy":"usd"},"trades":[],"cash":[],"savedAt":0}</script>
 <div class="wrap" id="app"></div>
 <script>
 // このページの正本は APP そのもの。記録を保存するときは APP.toString() から
@@ -14,7 +14,8 @@ const APP = function () {
   const WEEK = ["月", "火", "水", "木", "金", "土", "日"];
   const CATEGORIES = ["FX", "暗号通貨", "バイナリー", "stake"];
   const OTHER = "その他";
-  const DEFAULTS = { goalJpy: 100000, seed: 50000, seedCcy: "jpy", usdjpy: 155, days: 30, riskPct: 2 };
+  const DEFAULTS = { goalJpy: 100000, seed: 50000, seedCcy: "jpy", usdjpy: 155,
+                     days: 30, riskPct: 2, dispCcy: "usd" };
   const FONTS = "https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&display=swap";
 
   const CSS = String.raw`
@@ -75,12 +76,15 @@ body{
 }
 .rule-thin{height:1px;background:var(--rule-strong);margin-bottom:18px}
 .tabs{display:flex;border-bottom:1px solid var(--rule-strong);margin:2px 0 20px}
-.tabs button{
+.tabs{align-items:center}
+.tabs>button{
   background:none;border:0;padding:10px 18px;font-size:14px;font-family:inherit;
   color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;
 }
-.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brass);font-weight:700}
-.tabs button:hover{color:var(--ink)}
+.tabs>button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brass);font-weight:700}
+.tabs>button:hover{color:var(--ink)}
+.seg.ccy{margin:0 0 6px auto;align-self:center}
+.seg.ccy button{flex:none;padding:5px 12px;font-size:13px;min-width:38px}
 .cashsum{
   display:grid;grid-template-columns:repeat(3,1fr);
   border:1px solid var(--rule-strong);background:var(--surface);margin-bottom:22px;
@@ -379,6 +383,20 @@ details.more .row{margin-top:12px}
     return String(s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+  // 表示通貨。データは常にドルで持ち、見せ方だけ切り替える
+  const jpyMode = () => state.config.dispCcy === "jpy";
+  const unit = () => (jpyMode() ? "円" : "ドル");
+  const unitMark = () => (jpyMode() ? "¥" : "$");
+  const toDisp = (usd) => (jpyMode() ? usd * state.config.usdjpy : usd);
+  const fromDisp = (v) => (jpyMode() ? v / state.config.usdjpy : v);
+  const cur = (usd) => (jpyMode() ? yen(usd * state.config.usdjpy) : money(usd));
+  const curPlain = (usd) => (jpyMode() ? jp(usd * state.config.usdjpy) : usd.toFixed(2));
+  const curCell = (usd) => (jpyMode() ? yen(usd * state.config.usdjpy) : compact(usd));
+  // 主表示のとなりに、もう一方の通貨も添える
+  const curBoth = (usd) => (jpyMode()
+    ? yen(usd * state.config.usdjpy) + " 円（" + money(usd) + " ドル）"
+    : money(usd) + " ドル（約 " + yen(usd * state.config.usdjpy) + " 円）");
+
   const monthTrades = (y, m) => state.trades.filter((t) => t.date.startsWith(ym(y, m)));
   const dayTrades = (d) => state.trades.filter((t) => t.date === d);
 
@@ -467,8 +485,8 @@ details.more .row{margin-top:12px}
     } else if (!p.daysLeft) {
       action = "今月は終了。数字を確定して、勝ちパターンを来月のルールに書き写す。";
     } else {
-      action = "明日も " + p.parPerDay.toFixed(2) + " ドル（約 " + jp(p.parPerDay * state.config.usdjpy)
-        + " 円）を淡々と。1トレードの許容損失は " + p.risk.toFixed(2) + " ドルまで。";
+      action = "明日も " + curBoth(p.parPerDay) + " を淡々と。1トレードの許容損失は "
+        + curPlain(p.risk) + " " + unit() + "まで。";
     }
 
     let cheer;
@@ -505,7 +523,11 @@ details.more .row{margin-top:12px}
   function tabBar() {
     const t = (key, label) =>
       '<button data-tab="' + key + '" aria-selected="' + (tab === key) + '">' + label + "</button>";
-    return '<div class="tabs" role="tablist">' + t("ledger", "台帳") + t("cash", "入出金") + "</div>";
+    const c = (key, label) =>
+      '<button type="button" data-disp="' + key + '" aria-pressed="' +
+      (state.config.dispCcy === key) + '">' + label + "</button>";
+    return '<div class="tabs" role="tablist">' + t("ledger", "台帳") + t("cash", "入出金") +
+      '<div class="seg ccy" id="dispccy">' + c("usd", "$") + c("jpy", "¥") + "</div></div>";
   }
 
   function foot() {
@@ -523,15 +545,16 @@ details.more .row{margin-top:12px}
     const p = progress(y, m);
 
     return '<div class="band">' +
-        fig("この月の損益", money(total), cls(total),
-            rows.length + " 件 ／ 約 " + yen(total * state.config.usdjpy) + " 円") +
+        fig("この月の損益", cur(total), cls(total),
+            rows.length + " 件 ／ " + (jpyMode()
+              ? money(total) + " ドル" : "約 " + yen(total * state.config.usdjpy) + " 円")) +
         fig("達成率", pct(p.achieved), "",
-            "目標 " + p.goal.toFixed(2) + " ドル ／ " + p.status) +
-        fig("必要ペース", p.needPerDay.toFixed(2),
-            "", p.daysLeft ? "1日あたり ／ 月末まで " + p.daysLeft + " 日" : "今月は終了") +
-        fig("口座", p.equity.toFixed(2), p.seedOk ? "" : "loss",
-            p.seedAlert ? "元本割れ" : p.seedOk ? "元本 " + p.seed.toFixed(0) + " ドル維持"
-              : "元本まで " + (p.seed - p.equity).toFixed(2) + " ドル", p.seedAlert) +
+            "目標 " + curPlain(p.goal) + " " + unit() + " ／ " + p.status) +
+        fig("必要ペース", curPlain(p.needPerDay),
+            "", p.daysLeft ? unit() + "/日 ／ 月末まで " + p.daysLeft + " 日" : "今月は終了") +
+        fig("口座", curPlain(p.equity), p.seedOk ? "" : "loss",
+            p.seedAlert ? "元本割れ" : p.seedOk ? "元本 " + curPlain(p.seed) + " " + unit() + "維持"
+              : "元本まで " + curPlain(p.seed - p.equity) + " " + unit(), p.seedAlert) +
       "</div>" +
       '<div class="dow">' + WEEK.map((d, i) =>
         '<span class="' + (i === 5 ? "sat" : i === 6 ? "sun" : "") + '">' + d + "</span>").join("") +
@@ -551,16 +574,18 @@ details.more .row{margin-top:12px}
     const rate = state.config.usdjpy;
 
     return '<div class="cashsum">' +
-      fig("入金", money(inn), inn ? "gain" : "",
-          "約 " + yen(inn * rate) + " 円 ／ " + state.cash.filter((c) => c.type === "in").length + " 件") +
-      fig("出金", money(-out), out ? "loss" : "",
-          "約 " + yen(-out * rate) + " 円 ／ " + state.cash.filter((c) => c.type === "out").length + " 件") +
-      fig("投入元本", base.toFixed(2),
-          "", "種銭 " + seedUsd().toFixed(2) + " ドル ＋ 入出金") +
+      fig("入金", cur(inn), inn ? "gain" : "",
+          (jpyMode() ? "約 " + money(inn) + " ドル" : "約 " + yen(inn * rate) + " 円") +
+            " ／ " + state.cash.filter((c) => c.type === "in").length + " 件") +
+      fig("出金", cur(-out), out ? "loss" : "",
+          (jpyMode() ? "約 " + money(-out) + " ドル" : "約 " + yen(-out * rate) + " 円") +
+            " ／ " + state.cash.filter((c) => c.type === "out").length + " 件") +
+      fig("投入元本", curPlain(base),
+          "", "種銭 " + curPlain(seedUsd()) + " " + unit() + " ＋ 入出金") +
       "</div>" +
-      '<p class="note">口座残高 <span class="num">' + equity.toFixed(2) +
-        '</span> ドル ＝ 投入元本 <span class="num">' + base.toFixed(2) +
-        '</span> ＋ 全期間の損益 <span class="num">' + money(allPnl()) + "</span></p>" +
+      '<p class="note">口座残高 <span class="num">' + curPlain(equity) +
+        "</span> " + unit() + ' ＝ 投入元本 <span class="num">' + curPlain(base) +
+        '</span> ＋ 全期間の損益 <span class="num">' + cur(allPnl()) + "</span></p>" +
       '<div class="entry"><h2>入出金を記録</h2>' + cashForm() + cashLines() + "</div>";
   }
 
@@ -607,15 +632,15 @@ details.more .row{margin-top:12px}
       return "<tr>" +
         "<td>" + esc(c.date) + "</td>" +
         "<td>" + (c.type === "in" ? "入金" : "出金") + "</td>" +
-        '<td class="num ' + cls(signed) + '">' + money(signed) + "</td>" +
+        '<td class="num ' + cls(signed) + '">' + cur(signed) + "</td>" +
         '<td class="num">' + (c.jpy ? yen(c.type === "in" ? c.jpy : -c.jpy) + " 円" : "—") + "</td>" +
-        '<td class="num">' + after.toFixed(2) + "</td>" +
+        '<td class="num">' + curPlain(after) + "</td>" +
         '<td class="memo">' + esc(c.memo || "") + "</td>" +
         '<td style="text-align:right"><button class="del" data-delcash="' + c.id +
           '" aria-label="この記録を削除">×</button></td></tr>';
     }).join("");
     return '<div class="tablewrap"><table class="lines"><thead><tr>' +
-      "<th>日付</th><th>区分</th><th style=\"text-align:right\">金額 ($)</th>" +
+      "<th>日付</th><th>区分</th><th style=\"text-align:right\">金額 (" + unitMark() + ")</th>" +
       "<th style=\"text-align:right\">元の金額</th><th style=\"text-align:right\">元本</th>" +
       "<th>メモ</th><th></th></tr></thead><tbody>" + body + "</tbody></table></div>";
   }
@@ -642,7 +667,7 @@ details.more .row{margin-top:12px}
         .filter(Boolean).join(" ");
       html += '<button class="' + c + '" data-day="' + key + '">' +
         '<span class="d">' + d + "</span>" +
-        (v === null ? "" : '<span class="amt ' + cls(v) + '">' + compact(v) + "</span>") +
+        (v === null ? "" : '<span class="amt ' + cls(v) + '">' + curCell(v) + "</span>") +
         (rows.length > 1 ? '<span class="cnt">' + rows.length + " 件</span>" : "") +
         "</button>";
     }
@@ -661,8 +686,9 @@ details.more .row{margin-top:12px}
             '<button type="button" class="gain" data-sign="1" aria-pressed="' + (sign === 1) + '">利益</button>' +
             '<button type="button" class="loss" data-sign="-1" aria-pressed="' + (sign === -1) + '">損失</button>' +
           "</div></div>" +
-        '<div class="field" style="flex:0 0 150px"><label for="amt">金額（ドル）</label>' +
-          '<input id="amt" type="number" step="0.01" min="0" inputmode="decimal" placeholder="15.00" required></div>' +
+        '<div class="field" style="flex:0 0 150px"><label for="amt">金額（' + unit() + '）</label>' +
+          '<input id="amt" type="number" step="0.01" min="0" inputmode="decimal" placeholder="' +
+            (jpyMode() ? "2400" : "15.00") + '" required></div>' +
         '<div class="field" style="flex:2 1 240px"><label for="memo">メモ</label>' +
           '<input id="memo" type="text" placeholder="H1上昇の押し目、M15で反発を確認"></div>' +
       "</div>" +
@@ -670,7 +696,7 @@ details.more .row{margin-top:12px}
         '<div class="field"><label for="sym">銘柄</label><input id="sym" type="text" placeholder="BTC/USD"></div>' +
         '<div class="field"><label for="side">方向</label><select id="side">' +
           '<option value=""></option><option>BUY</option><option>SELL</option></select></div>' +
-        '<div class="field"><label for="fee">手数料（ドル）</label>' +
+        '<div class="field"><label for="fee">手数料（' + unit() + '）</label>' +
           '<input id="fee" type="number" step="0.01" placeholder="0.00"></div>' +
         '<div class="field"><label for="tags">タグ（スペース区切り）</label>' +
           '<input id="tags" type="text" placeholder="押し目 順張り"></div>' +
@@ -729,21 +755,22 @@ details.more .row{margin-top:12px}
             width.toFixed(1) + '%"></i></span></td>' +
         '<td class="num">' + g.count + "</td>" +
         '<td class="num">' + (g.winRate * 100).toFixed(0) + "%</td>" +
-        '<td class="num ' + cls(g.net) + '">' + money(g.net) + "</td>" +
-        '<td class="num">' + yen(g.net * rate) + "</td></tr>";
+        '<td class="num ' + cls(g.net) + '">' + cur(g.net) + "</td>" +
+        '<td class="num">' + (jpyMode() ? money(g.net) : yen(g.net * rate)) + "</td></tr>";
     }).join("");
     const total = sum(rows.map(net));
     return '<div class="split"><h3>カテゴリー別 収支</h3>' +
       '<p class="note" style="margin:0">' + y + "年" + m + "月 ／ " + groups.length + " 区分</p>" +
       '<div class="tablewrap"><table class="lines"><thead><tr>' +
         '<th>区分</th><th style="text-align:right">件数</th>' +
-        '<th style="text-align:right">勝率</th><th style="text-align:right">損益 ($)</th>' +
-        '<th style="text-align:right">円</th>' +
+        '<th style="text-align:right">勝率</th>' +
+        '<th style="text-align:right">損益 (' + unitMark() + ')</th>' +
+        '<th style="text-align:right">' + (jpyMode() ? "$" : "円") + "</th>" +
       "</tr></thead><tbody>" + body + "</tbody><tfoot><tr>" +
         "<td><strong>合計</strong></td>" +
         '<td class="num">' + rows.length + "</td><td></td>" +
-        '<td class="num ' + cls(total) + '"><strong>' + money(total) + "</strong></td>" +
-        '<td class="num">' + yen(total * rate) + "</td>" +
+        '<td class="num ' + cls(total) + '"><strong>' + cur(total) + "</strong></td>" +
+        '<td class="num">' + (jpyMode() ? money(total) : yen(total * rate)) + "</td>" +
       "</tr></tfoot></table></div></div>";
   }
 
@@ -754,7 +781,7 @@ details.more .row{margin-top:12px}
       const n = net(t);
       const tags = (t.tags || []).map((x) => " #" + esc(x)).join("");
       return "<tr>" +
-        '<td class="num ' + cls(n) + '">' + money(n) + "</td>" +
+        '<td class="num ' + cls(n) + '">' + cur(n) + "</td>" +
         "<td>" + esc(catOf(t)) + "</td>" +
         "<td>" + esc(t.symbol || "—") + "</td>" +
         "<td>" + esc(t.side || "—") + "</td>" +
@@ -764,10 +791,10 @@ details.more .row{margin-top:12px}
     }).join("");
     const tot = sum(rows.map(net));
     return '<div class="tablewrap"><table class="lines"><thead><tr>' +
-      '<th style="text-align:right">損益 ($)</th><th>区分</th><th>銘柄</th><th>方向</th>' +
+      '<th style="text-align:right">損益 (' + unitMark() + ')</th><th>区分</th><th>銘柄</th><th>方向</th>' +
       "<th>メモ</th><th></th>" +
       "</tr></thead><tbody>" + body + "</tbody><tfoot><tr>" +
-      '<td class="num ' + cls(tot) + '"><strong>' + money(tot) + "</strong></td>" +
+      '<td class="num ' + cls(tot) + '"><strong>' + cur(tot) + "</strong></td>" +
       '<td colspan="5" class="memo">' + rows.length + " 件</td></tr></tfoot></table></div>";
   }
 
@@ -779,23 +806,23 @@ details.more .row{margin-top:12px}
     const n = (x) => '<span class="num">' + x + "</span>";
     return '<div class="report"><h3>日報 ' + day + "</h3>" +
       '<section><div class="h">結論</div>' +
-        "<p>本日 " + n(money(r.tp)) + " ドル（" + r.count + "件） ／ 今月累計 " + n(money(p.cum)) +
-          " ドル（約 " + n(yen(p.cum * state.config.usdjpy)) + " 円）</p>" +
+        "<p>本日 " + n(cur(r.tp)) + " " + unit() + "（" + r.count + "件） ／ 今月累計 " +
+          n(curBoth(p.cum)) + "</p>" +
         "<p>達成率 " + n(pct(p.achieved)) + " ／ 目標 " +
-          n(p.goal.toFixed(2)) + " ドル</p>" +
+          n(curPlain(p.goal)) + " " + unit() + "</p>" +
         '<div class="meter"><i style="width:' + meter.toFixed(1) + '%"></i></div></section>' +
       '<section><div class="h">根拠</div>' +
         "<p>① " + n(p.elapsed + "/" + p.dim) + " 日経過（記録 " + n(p.daysDone) +
-          " 日）・想定ライン " + n(p.onTrack.toFixed(2)) + " ドルに対し " +
-          n(Math.abs(p.gap).toFixed(2)) + " ドルの" +
+          " 日）・想定ライン " + n(curPlain(p.onTrack)) + " " + unit() + "に対し " +
+          n(curPlain(Math.abs(p.gap))) + " " + unit() + "の" +
           (p.gap >= 0 ? "貯金" : "ビハインド") + " → " + p.status + "</p>" +
         "<p>② " + (p.daysLeft
-          ? "残り " + n(p.daysLeft) + " 日（月末まで）、必要ペース " + n(p.needPerDay.toFixed(2)) +
-            " ドル/日（計画 " + n(p.parPerDay.toFixed(2)) + " ドル/日）"
+          ? "残り " + n(p.daysLeft) + " 日（月末まで）、必要ペース " + n(curPlain(p.needPerDay)) +
+            " " + unit() + "/日（計画 " + n(curPlain(p.parPerDay)) + " " + unit() + "/日）"
           : "今月は終了。結果を確定して来月の設定に反映しよう") + "</p>" +
         "<p>③ 勝率 " + n((p.perf.winRate * 100).toFixed(0) + "%") + "（" + p.perf.wins + "勝" +
           p.perf.losses + "敗） ／ PF " + n(pf) + " ／ 期待値 " +
-          n(money(p.perf.expectancy)) + " ドル</p></section>" +
+          n(cur(p.perf.expectancy)) + " " + unit() + "</p></section>" +
       '<section><div class="h">次のアクション</div>' +
         "<p>・" + esc(r.action) + "</p><p>・" + esc(r.cheer) + "</p></section></div>";
   }
@@ -925,8 +952,8 @@ details.more .row{margin-top:12px}
         id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         date: selected,
         category: category === OTHER ? (otherText || OTHER) : category,
-        pnl: round2(Math.abs(amt) * sign),
-        fee: parseFloat(document.getElementById("fee").value) || 0,
+        pnl: round2(fromDisp(Math.abs(amt)) * sign),
+        fee: round2(fromDisp(parseFloat(document.getElementById("fee").value) || 0)),
         symbol: (document.getElementById("sym").value || "").trim().toUpperCase(),
         side: document.getElementById("side").value,
         memo: (document.getElementById("memo").value || "").trim(),
@@ -946,6 +973,14 @@ details.more .row{margin-top:12px}
 
     document.querySelectorAll("[data-tab]").forEach((b) => {
       b.onclick = () => { tab = b.dataset.tab; render(); };
+    });
+
+    document.querySelectorAll("[data-disp]").forEach((b) => {
+      b.onclick = () => {
+        if (state.config.dispCcy === b.dataset.disp) return;
+        state.config.dispCcy = b.dataset.disp;
+        commit();
+      };
     });
 
     document.querySelectorAll("#kind button").forEach((b) => {
