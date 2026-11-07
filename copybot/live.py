@@ -53,21 +53,56 @@ def token_deltas(tx: dict, owner: str) -> dict:
             for m in set(pre) | set(post) if abs(post.get(m, 0.0) - pre.get(m, 0.0)) > 0}
 
 
-def trades_from_tx(tx: dict, owner: str, leader: str, held: dict) -> list[LeaderTrade]:
-    """Turn a parsed tx into buy/sell events. `held` tracks leader balances (mint -> amount)."""
+def sol_delta(tx: dict, owner: str) -> float:
+    """Native SOL change of `owner` in the tx (fee added back when owner paid it)."""
+    meta = (tx or {}).get("meta") or {}
+    try:
+        keys = tx["transaction"]["message"]["accountKeys"]
+        keys = [k["pubkey"] if isinstance(k, dict) else k for k in keys]
+        i = keys.index(owner)
+        d = (meta["postBalances"][i] - meta["preBalances"][i]) / 1e9
+        if i == 0:
+            d += (meta.get("fee") or 0) / 1e9
+        return d
+    except (KeyError, ValueError, IndexError, TypeError):
+        return 0.0
+
+
+def _pre_amount(tx: dict, owner: str, mint: str) -> float:
+    meta = (tx or {}).get("meta") or {}
+    return sum(float((b.get("uiTokenAmount") or {}).get("uiAmount") or 0)
+               for b in meta.get("preTokenBalances") or [] if b.get("owner") == owner and b.get("mint") == mint)
+
+
+def trades_from_tx(tx: dict, owner: str, leader: str, held: Optional[dict] = None,
+                   sol_usd: Optional[float] = None) -> list[LeaderTrade]:
+    """Turn a parsed tx into buy/sell events with the leader's fill price when it can be derived.
+    Sell fraction comes from the leader's balance before the tx (no history needed)."""
     out = []
+    held = {} if held is None else held
     t = float(tx.get("blockTime") or time.time())
-    for mint, d in token_deltas(tx, owner).items():
-        if mint in STABLES:
-            continue
-        before = held.get(mint, 0.0)
+    deltas = token_deltas(tx, owner)
+    quote_usd = 0.0                                   # what the leader paid (+) / received (-) in USD
+    for m, d in deltas.items():
+        if m in ("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCE8BenwNYB"):
+            quote_usd -= d
+        elif m == SOL_MINT and sol_usd:
+            quote_usd -= d * sol_usd
+    if sol_usd:
+        quote_usd -= sol_delta(tx, owner) * sol_usd
+    traded = {m: d for m, d in deltas.items() if m not in STABLES}
+    for mint, d in traded.items():
+        px = abs(quote_usd) / abs(d) if quote_usd and len(traded) == 1 and d else None
+        if px is not None and ((d > 0) != (quote_usd > 0)):
+            px = None                                 # not a simple swap (transfer, airdrop...)
         if d > 0:
-            out.append(LeaderTrade(t, leader, "buy", mint))
-            held[mint] = before + d
+            out.append(LeaderTrade(t, leader, "buy", mint, px=px))
+            held[mint] = held.get(mint, 0.0) + d
         else:
-            frac = 1.0 if before <= 0 else min(1.0, -d / before)
-            out.append(LeaderTrade(t, leader, "sell", mint, frac=frac))
-            held[mint] = max(0.0, before + d)
+            pre = _pre_amount(tx, owner, mint) or held.get(mint, 0.0)
+            frac = 1.0 if pre <= 0 else min(1.0, -d / pre)
+            out.append(LeaderTrade(t, leader, "sell", mint, frac=frac, px=px))
+            held[mint] = max(0.0, held.get(mint, 0.0) + d)
     return out
 
 
@@ -99,14 +134,95 @@ class Solana:
             return j["result"]
         raise RuntimeError(f"{method}: rate limited after {retries} retries")
 
-    def signatures(self, addr: str, until: Optional[str] = None, limit: int = 20):
+    def signatures(self, addr: str, until: Optional[str] = None, limit: int = 20, before: Optional[str] = None):
         p = {"limit": limit}
         if until:
             p["until"] = until
+        if before:
+            p["before"] = before
         return self.call("getSignaturesForAddress", [addr, p])
 
-    def tx(self, sig: str):
-        return self.call("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1}])
+    def tx(self, sig: str, tries: int = 3):
+        """Parsed tx at 'confirmed'. A just-notified tx can be null for a moment: retry briefly."""
+        for i in range(tries):
+            r = self.call("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1,
+                                                   "commitment": "confirmed"}])
+            if r is not None or i == tries - 1:
+                return r
+            time.sleep(1.0)
+
+    def token_balance(self, owner: str, mint: str) -> float:
+        r = self.call("getTokenAccountsByOwner", [owner, {"mint": mint}, {"encoding": "jsonParsed"}])
+        return sum(float(a["account"]["data"]["parsed"]["info"]["tokenAmount"].get("uiAmount") or 0)
+                   for a in (r or {}).get("value", []))
+
+    @property
+    def ws_url(self) -> str:
+        return self.rpc.replace("https://", "wss://").replace("http://", "ws://")
+
+
+class LogWatcher:
+    """Push notifications (logsSubscribe) for wallets -> queue of (name, address, signature).
+    Runs in a background thread; reconnects forever. Public node allows ~5 subscriptions per socket."""
+
+    PER_SOCKET = 5
+
+    def __init__(self, ws_url: str, wallets: dict):
+        import queue
+        import threading
+        self.url, self.wallets = ws_url, wallets
+        self.q = queue.Queue()
+        self.connected = 0
+        self.stop = False
+        self.t = threading.Thread(target=self._run, daemon=True)
+
+    def start(self):
+        self.t.start()
+        return self
+
+    def _run(self):
+        import asyncio
+        asyncio.run(self._main())
+
+    async def _main(self):
+        import asyncio
+        items = list(self.wallets.items())
+        groups = [items[i:i + self.PER_SOCKET] for i in range(0, len(items), self.PER_SOCKET)]
+        await asyncio.gather(*(self._socket(g) for g in groups))
+
+    async def _socket(self, group):
+        import asyncio
+        import websockets
+        backoff = 2
+        while not self.stop:
+            try:
+                async with websockets.connect(self.url, open_timeout=20, ping_interval=20, max_size=2 ** 22) as ws:
+                    subs = {}
+                    for i, (name, addr) in enumerate(group):
+                        await ws.send(json.dumps({"jsonrpc": "2.0", "id": i, "method": "logsSubscribe",
+                                                  "params": [{"mentions": [addr]}, {"commitment": "confirmed"}]}))
+                    while len(subs) < len(group):
+                        m = json.loads(await asyncio.wait_for(ws.recv(), 20))
+                        if "id" in m and "result" in m:
+                            subs[m["result"]] = group[m["id"]]
+                    self.connected += 1
+                    backoff = 2
+                    try:
+                        async for raw in ws:
+                            m = json.loads(raw)
+                            p = m.get("params") or {}
+                            v = (p.get("result") or {}).get("value") or {}
+                            if v.get("signature") and not v.get("err") and p.get("subscription") in subs:
+                                name, addr = subs[p["subscription"]]
+                                self.q.put((name, addr, v["signature"], time.time()))
+                            if self.stop:
+                                break
+                    finally:
+                        self.connected -= 1
+            except Exception as e:
+                print(f"ws reconnect ({e.__class__.__name__}: {str(e)[:80]})", file=sys.stderr)
+                await asyncio.sleep(backoff)
+                backoff = min(60, backoff * 2)
 
 
 def fee_payer(tx: dict) -> Optional[str]:
@@ -118,35 +234,55 @@ def fee_payer(tx: dict) -> Optional[str]:
 
 
 class DexPrices:
+    """USD price per token from DexScreener (deepest pool). Also keeps liquidity / age for filters."""
+
     def __init__(self, ttl: float = 5.0):
         self.cache: dict = {}
+        self.info: dict = {}
         self.ttl = ttl
         self.s = requests.Session()
 
-    def __call__(self, mint: str, t: float) -> Optional[float]:
+    def __call__(self, mint: str, t: float = 0) -> Optional[float]:
         hit = self.cache.get(mint)
         if hit and time.time() - hit[0] < self.ttl:
             return hit[1]
         try:
             r = self.s.get(f"https://api.dexscreener.com/latest/dex/tokens/{mint}", timeout=15)
-            pairs = (r.json() or {}).get("pairs") or []
-            pairs = [p for p in pairs if p.get("priceUsd")]
+            pairs = [p for p in ((r.json() or {}).get("pairs") or []) if p.get("priceUsd")]
             if not pairs:
-                return None
+                return hit[1] if hit else None
             best = max(pairs, key=lambda p: float((p.get("liquidity") or {}).get("usd") or 0))
             px = float(best["priceUsd"])
             self.cache[mint] = (time.time(), px)
+            self.info[mint] = {"liq": float((best.get("liquidity") or {}).get("usd") or 0),
+                               "created": (best.get("pairCreatedAt") or 0) / 1000,
+                               "dex": best.get("dexId")}
             return px
         except Exception as e:  # network hiccup: keep last price
             print(f"price error {mint[:6]}: {e}", file=sys.stderr)
             return hit[1] if hit else None
 
+    def sol_usd(self) -> Optional[float]:
+        return self(SOL_MINT)
+
+    def liquidity_filter(self, min_liq: float = 15000):
+        def f(mint: str) -> Optional[str]:
+            if mint not in self.info:
+                self(mint)
+            liq = (self.info.get(mint) or {}).get("liq", 0)
+            if liq < min_liq:
+                return f"liquidity ${liq:,.0f} < ${min_liq:,.0f}"
+            return None
+        return f
+
 
 def paper_loop(eng: CopyEngine, wallets: dict, sol: "Solana", until: float, log=None,
-               poll: float = 2.0, echo: bool = True) -> CopyEngine:
+               poll: float = 1.0, echo: bool = True, use_ws: bool = True, backfill_s: float = 45.0) -> CopyEngine:
     """Follow `wallets` (name -> address) live until `until` (epoch) or the engine locks.
-    Each activity row also gets `lag_s`: seconds between the leader's on-chain trade and our detection."""
-    last, held = {}, {name: {} for name in wallets}
+
+    Detection: WebSocket push (fast) + a slow polling sweep as safety net (catches anything
+    the socket missed). Each 'watch' row gets `lag_s` = our detection time - on-chain block time."""
+    last, held, done = {}, {name: {} for name in wallets}, set()
     for name, addr in wallets.items():                 # start from "now": ignore history
         try:
             sigs = sol.signatures(addr, limit=1)
@@ -154,34 +290,56 @@ def paper_loop(eng: CopyEngine, wallets: dict, sol: "Solana", until: float, log=
         except Exception as e:
             print(f"rpc error {name}: {e}", file=sys.stderr)
             last[name] = None
+    watcher = LogWatcher(sol.ws_url, wallets).start() if use_ws else None
+    names = list(wallets)
+    sweep_i, next_sweep = 0, time.time() + backfill_s / max(1, len(names))
     seen = 0
+
+    def handle(name, addr, sig):
+        if sig in done:
+            return
+        done.add(sig)
+        try:
+            tx = sol.tx(sig)
+            if not tx:
+                return
+            sol_usd = eng.price_fn.sol_usd() if hasattr(eng.price_fn, "sol_usd") else None
+            for tr in trades_from_tx(tx, addr, name, held[name], sol_usd=sol_usd):
+                now = time.time()
+                lag = now - tr.t
+                tr.t = now                             # copy delay counts from when WE saw it
+                n0 = len(eng.activity)
+                eng.on_leader_trade(tr)
+                for a in eng.activity[n0:]:
+                    if a["kind"] == "watch":
+                        a["lag_s"] = round(lag, 1)
+                        a["via"] = "ws" if from_ws else "poll"
+        except Exception as e:
+            print(f"tx error {sig[:8]}: {e}", file=sys.stderr)
+
     while not eng.locked and time.time() < until:
-        for name, addr in wallets.items():
+        from_ws = True
+        while watcher and not watcher.q.empty():       # fast path
+            name, addr, sig, _ = watcher.q.get()
+            handle(name, addr, sig)
+            eng.step(time.time())
+        if time.time() >= next_sweep or not watcher or not watcher.connected:   # safety net, one wallet at a time
+            from_ws = False
+            name = names[sweep_i % len(names)]; sweep_i += 1
+            addr = wallets[name]
+            next_sweep = time.time() + (backfill_s / len(names) if watcher and watcher.connected else 0)
             try:
                 sigs = sol.signatures(addr, until=last[name]) if last[name] else sol.signatures(addr, limit=1)
+                if sigs:
+                    first = last[name] is None
+                    last[name] = sigs[0]["signature"]
+                    if first:
+                        sigs = []
+                for s in reversed(sigs[:10]):          # a burst of >10 txs is a bot; only look at the newest
+                    if not s.get("err"):
+                        handle(name, addr, s["signature"])
             except Exception as e:
                 print(f"rpc error {name}: {e}", file=sys.stderr)
-                continue
-            if sigs:
-                if last[name] is None:
-                    last[name] = sigs[0]["signature"]
-                    continue
-                last[name] = sigs[0]["signature"]
-            for s in reversed(sigs[:10]):              # a burst of >10 txs is a bot; only look at the newest
-                if s.get("err"):
-                    continue
-                try:
-                    tx = sol.tx(s["signature"])
-                    for tr in trades_from_tx(tx, addr, name, held[name]):
-                        now = time.time()
-                        lag = now - tr.t
-                        tr.t = now                     # copy delay counts from when WE saw it
-                        eng.on_leader_trade(tr)
-                        if eng.activity and eng.activity[-1]["kind"] == "watch":
-                            eng.activity[-1]["lag_s"] = round(lag, 1)
-                except Exception as e:
-                    print(f"tx error {s['signature'][:8]}: {e}", file=sys.stderr)
-            eng.step(time.time())
         eng.step(time.time())
         for act in eng.activity[seen:]:
             if echo:
@@ -190,7 +348,11 @@ def paper_loop(eng: CopyEngine, wallets: dict, sol: "Solana", until: float, log=
             if log:
                 log.write(json.dumps(act) + "\n"); log.flush()
         seen = len(eng.activity)
+        if len(done) > 50000:
+            done.clear()
         time.sleep(poll)
+    if watcher:
+        watcher.stop = True
     return eng
 
 

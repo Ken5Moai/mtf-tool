@@ -27,9 +27,9 @@
 ### 自動運用（ペーパー）
 `.github/workflows/copybot.yml` が6時間ごとに `python -m copybot.ops` を実行：
 1. これまでの記録から追う相手を採点（KEEP / DROP / 様子見）
-2. 空き枠があれば DexScreener の注目トークンを売買した人間ペースのウォレットを候補追加（bot判定は除外）
-3. 約5時間40分、仮想資金で追従（1回20%・損切り-40%・+15%以上なら見送り・10倍利確・5秒遅れ）
-4. 全決済 → 結果を `copybot-data` ブランチ（`state.json` / `paper_log.jsonl` / `REPORT.md`）に保存、ntfy に1行通知
+2. 空き枠があれば候補を追加：①すでに大きく上がったトークン（24h +100%以上・流動性$30k以上）の初期購入者 ②注目トークンの直近売買者（bot判定は除外）
+3. 約5時間40分、仮想資金で追従（1回20%・損切り-40%・相手の約定値より+15%以上なら見送り・流動性$15k未満は見送り・10倍利確・5秒遅れ）。検知はWebSocket即時通知＋ポーリングの二重化
+4. 保有中のポジションは次回に持ち越し（相手が不在中に売っていたら決済）→ 結果を `copybot-data` ブランチ（`state.json` / `paper_log.jsonl` / `REPORT.md`）に保存、ntfy に1行通知
 
 - 成績を見る: `copybot-data` ブランチの `REPORT.md`
 - 手動実行: Actions → "Copy Bot (paper)" → Run workflow

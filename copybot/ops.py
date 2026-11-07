@@ -25,12 +25,12 @@ from pathlib import Path
 
 import requests
 
-from .engine import Config, CopyEngine
+from .engine import Config, CopyEngine, Position
 from .live import DexPrices, Solana, fee_payer, paper_loop, token_deltas
 from .score import score
 
 DEFAULTS = dict(budget=149.0, max_leaders=6, min_trades=20, delay_s=5.0, take_profit_x=10.0,
-                size_frac=0.2, stop_loss_x=0.6, max_chase_pct=15.0)
+                size_frac=0.2, stop_loss_x=0.6, max_chase_pct=15.0, min_liquidity=15000.0)
 
 # Program / router accounts that show up as signers or owners but are not traders.
 NOT_TRADERS = {"11111111111111111111111111111111", "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
@@ -49,6 +49,8 @@ def load_state(data: Path) -> dict:
     st.setdefault("start_bankroll", DEFAULTS["budget"])
     st.setdefault("leaders", {})          # addr -> {status, added, source}
     st.setdefault("runs", [])             # [{start, end, bankroll_before, bankroll_after, ...}]
+    st.setdefault("cash", st["bankroll"])  # uninvested paper USD
+    st.setdefault("open", [])             # positions carried to the next run
     return st
 
 
@@ -77,47 +79,112 @@ def trending_mints(limit: int = 8) -> list[str]:
     return out[:limit]
 
 
+def runner_mints(n: int = 5, min_change: float = 100.0, min_liq: float = 30000, max_age_h: float = 72) -> list:
+    """Solana tokens that already ran (h24 change >= min_change %) with real liquidity. -> [(mint, change%)]"""
+    mints = trending_mints(30)
+    if not mints:
+        return []
+    try:
+        pairs = requests.get("https://api.dexscreener.com/latest/dex/tokens/" + ",".join(mints[:30]),
+                             timeout=20).json().get("pairs") or []
+    except Exception as e:
+        print(f"dexscreener error: {e}", file=sys.stderr)
+        return []
+    best = {}
+    now = time.time()
+    for p in pairs:
+        if p.get("chainId") != "solana":
+            continue
+        m = (p.get("baseToken") or {}).get("address")
+        liq = float((p.get("liquidity") or {}).get("usd") or 0)
+        ch = float((p.get("priceChange") or {}).get("h24") or 0)
+        age_h = (now - (p.get("pairCreatedAt") or 0) / 1000) / 3600
+        if m and liq >= min_liq and ch >= min_change and age_h <= max_age_h:
+            if m not in best or liq > best[m][1]:
+                best[m] = (ch, liq)
+    return sorted(((m, v[0]) for m, v in best.items()), key=lambda x: -x[1])[:n]
+
+
+def early_signatures(sol: Solana, mint: str, n_tx: int = 25, max_pages: int = 4) -> list[str]:
+    """Oldest reachable signatures of a token (skipping the creation txs)."""
+    before, oldest = None, []
+    for _ in range(max_pages):
+        sigs = sol.signatures(mint, limit=1000, before=before)
+        if not sigs:
+            break
+        oldest = sigs
+        before = sigs[-1]["signature"]
+        if len(sigs) < 1000:
+            break
+    ok = [x["signature"] for x in reversed(oldest) if not x.get("err")]
+    return ok[2:2 + n_tx]
+
+
+def _is_bot(sol: Solana, addr: str) -> bool:
+    """20 txs inside 10 minutes = too fast for a human to be copyable."""
+    sigs = sol.signatures(addr, limit=20)
+    times = [x.get("blockTime") or 0 for x in sigs]
+    return len(times) == 20 and times[0] - times[-1] < 600
+
+
 def discover(sol: Solana, exclude: set, want: int, mints_n: int = 6, per_mint: int = 12,
              budget_s: float = 420) -> dict:
-    """Wallets that recently traded trending tokens, minus obvious bots. -> {addr: source_mint}"""
+    """Candidate wallets, best prior first:
+      1. early buyers of tokens that already ran (+2 per runner)
+      2. recent traders of trending tokens (+1)
+    minus bots and already-known wallets. -> {addr: "early:<mint>" | "recent:<mint>"}"""
     t_end = time.time() + budget_s
     seen: Counter = Counter()
-    source = {}
-    for mint in trending_mints(mints_n):
-        if time.time() > t_end:
+    source, counted = {}, set()
+
+    def take(sig, mint, pts, tag):
+        try:
+            tx = sol.tx(sig)
+        except Exception as e:
+            print(f"discover tx error: {e}", file=sys.stderr)
+            return
+        payer = fee_payer(tx)
+        if not payer or payer in exclude or payer in NOT_TRADERS:
+            return
+        d = token_deltas(tx, payer).get(mint, 0)
+        if (d > 0 or (tag == "recent" and d)) and (payer, mint) not in counted:
+            counted.add((payer, mint))                 # one point per distinct token, not per tx
+            seen[payer] += pts
+            source.setdefault(payer, f"{tag}:{mint}")
+
+    for mint, ch in runner_mints():                    # 1. early buyers of runners
+        if time.time() > t_end - budget_s * 0.4:
+            break
+        print(f"runner {short(mint)} +{ch:.0f}% h24 - reading its first buyers", flush=True)
+        try:
+            for sig in early_signatures(sol, mint):
+                if time.time() > t_end - budget_s * 0.4:
+                    break
+                take(sig, mint, 2, "early")
+        except Exception as e:
+            print(f"early sigs error: {e}", file=sys.stderr)
+    for mint in trending_mints(mints_n):               # 2. recent traders
+        if time.time() > t_end - budget_s * 0.15:
             break
         try:
-            sigs = sol.signatures(mint, limit=per_mint)
+            for x in sol.signatures(mint, limit=per_mint):
+                if not x.get("err") and time.time() < t_end - budget_s * 0.15:
+                    take(x["signature"], mint, 1, "recent")
         except Exception as e:
             print(f"discover sigs error: {e}", file=sys.stderr)
-            continue
-        for s in sigs:
-            if s.get("err") or time.time() > t_end:
-                continue
-            try:
-                tx = sol.tx(s["signature"])
-            except Exception as e:
-                print(f"discover tx error: {e}", file=sys.stderr)
-                continue
-            payer = fee_payer(tx)
-            if not payer or payer in exclude or payer in NOT_TRADERS:
-                continue
-            if mint in token_deltas(tx, payer):
-                seen[payer] += 1
-                source.setdefault(payer, mint)
+
     picked = {}
-    for addr, _ in seen.most_common():
+    for addr, pts in seen.most_common():
         if len(picked) >= want or time.time() > t_end:
             break
-        try:                                   # bot filter: 20 txs inside 10 minutes = too fast for a human
-            sigs = sol.signatures(addr, limit=20)
-            times = [x.get("blockTime") or 0 for x in sigs]
-            if len(times) == 20 and times[0] - times[-1] < 600:
+        try:
+            if _is_bot(sol, addr):
                 print(f"skip bot-like {short(addr)}")
                 continue
         except Exception:
             continue
         picked[addr] = source[addr]
+        print(f"candidate {short(addr)} score {pts} via {source[addr][:12]}", flush=True)
     return picked
 
 
@@ -162,12 +229,40 @@ def choose(st: dict, max_leaders: int) -> list[str]:
     return (keep + cand)[:max_leaders]
 
 
+def restore_positions(eng: CopyEngine, st: dict, sol, follow: list) -> None:
+    """Re-open positions from the previous run. Close the ones whose leader is no longer followed
+    or already sold while we were offline, and ones with no price (rugged / delisted -> $0)."""
+    now = time.time()
+    for o in st.get("open", []):
+        pos = Position(o["token"], o["leader"], o["qty"], o["cost"], o["opened"], o.get("initial_out", False))
+        key = (pos.leader, pos.token)
+        px = eng._px(pos.token, now)
+        if not px:
+            eng.realized -= pos.cost
+            eng._log(now, "lock", f"Sold {pos.token}", usd=0.0, pnl=-pos.cost, pct=-100.0,
+                     leader=pos.leader, token=pos.token, note="no price after restart - written off")
+            continue
+        eng.positions[key] = pos
+        reason = None
+        if pos.leader not in follow:
+            reason = "leader no longer followed"
+        else:
+            try:
+                if sol.token_balance(pos.leader, pos.token) <= 0:
+                    reason = "leader sold while offline"
+            except Exception as e:
+                print(f"balance check failed {short(pos.leader)}: {e}", file=sys.stderr)
+        if reason:
+            eng._close(now, key, 1.0, "sell", reason)
+
+
 # ---------------- report / notify ----------------
 def write_report(data: Path, st: dict, sc: list[dict], log: list[dict]) -> str:
     b0, b = st["start_bankroll"], st["bankroll"]
     lines = ["# Copy Bot paper report", "",
              f"Updated: {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC  ",
-             f"**Bankroll (paper): ${b:,.2f}** (start ${b0:,.2f}, {b / b0:.2f}x, {(b / b0 - 1) * 100:+.1f}%)  ",
+             f"**Bankroll (paper, marked to market): ${b:,.2f}** (start ${b0:,.2f}, {b / b0:.2f}x, "
+             f"{(b / b0 - 1) * 100:+.1f}%) — cash ${st.get('cash', b):,.2f}, {len(st.get('open', []))} open positions  ",
              f"Runs: {len(st['runs'])}", "",
              "## Leaders (scored on what copying them made)", "",
              "| wallet | status | copies | total $ | median % | win % |", "|---|---|---|---|---|---|"]
@@ -179,7 +274,14 @@ def write_report(data: Path, st: dict, sc: list[dict], log: list[dict]) -> str:
     lines += ["", "## Runs", "", "| start (UTC) | min | followed | copies | before | after |", "|---|---|---|---|---|---|"]
     for r in st["runs"][-30:][::-1]:
         lines.append(f"| {r['start']} | {r['minutes']} | {r['followed']} | {r['copies']} | "
-                     f"${r['before']:,.2f} | ${r['after']:,.2f} |")
+                     f"${r['before']:,.2f} | ${r['after']:,.2f} ({r.get('open', 0)} open) |")
+    ch = sorted(a["chase_pct"] for a in log if a.get("kind") == "buy" and a.get("chase_pct") is not None)
+    if ch:
+        lines += ["", f"Copy cost (our fill vs leader's fill): median {ch[len(ch) // 2]:+.1f}%, "
+                      f"p90 {ch[int(len(ch) * 0.9)]:+.1f}% over {len(ch)} buys."]
+    sk = Counter(a["text"].split(": ", 1)[-1].split(" ")[0] for a in log if a.get("kind") == "skip")
+    if sk:
+        lines += ["", "Skipped copies: " + ", ".join(f"{k} {v}" for k, v in sk.most_common())]
     lags = [a["lag_s"] for a in log if "lag_s" in a]
     if lags:
         lags.sort()
@@ -234,32 +336,40 @@ def main(argv=None):
         notify("No leaders found this run.")
         return
 
-    before = st["bankroll"]
-    cfg = Config(leaders=follow, budget=before, delay_s=DEFAULTS["delay_s"], take_profit_x=DEFAULTS["take_profit_x"],
-                 size_frac=DEFAULTS["size_frac"], stop_loss_x=DEFAULTS["stop_loss_x"],
-                 max_chase_pct=DEFAULTS["max_chase_pct"])
-    eng = CopyEngine(cfg, DexPrices())
-    print(f"PAPER run {a.minutes:g} min, bankroll ${before:,.2f}, following {[short(x) for x in follow]}", flush=True)
+    cfg = Config(leaders=follow, budget=st["cash"], delay_s=DEFAULTS["delay_s"],
+                 take_profit_x=DEFAULTS["take_profit_x"], size_frac=DEFAULTS["size_frac"],
+                 stop_loss_x=DEFAULTS["stop_loss_x"], max_chase_pct=DEFAULTS["max_chase_pct"])
+    prices = DexPrices()
+    eng = CopyEngine(cfg, prices)
+    eng.buy_filter = prices.liquidity_filter(DEFAULTS["min_liquidity"])
     with open(data / "paper_log.jsonl", "a") as f:
+        n0 = len(eng.activity)
+        restore_positions(eng, st, sol, follow)
+        before = eng.mark(time.time())
+        for act in eng.activity[n0:]:
+            f.write(json.dumps(act) + "\n")
+        print(f"PAPER run {a.minutes:g} min, equity ${before:,.2f} (cash ${eng.cash:,.2f}, "
+              f"{len(eng.positions)} carried), following {[short(x) for x in follow]}", flush=True)
         try:
             paper_loop(eng, {addr: addr for addr in follow}, sol, until=t_end, log=f)
-        finally:
-            if not eng.locked:
-                n0 = len(eng.activity)
-                eng._lock(time.time())        # close everything so every run is fully accounted
-                for act in eng.activity[n0:]:
-                    f.write(json.dumps(act) + "\n")
+        except Exception as e:                 # still save whatever state we have
+            print(f"paper loop crashed: {e!r}", file=sys.stderr)
     s = eng.stats()
-    st["bankroll"] = round(s["end"], 2)
+    after = eng.mark(time.time())
+    st["cash"] = round(eng.cash, 6)
+    st["open"] = [{"token": p.token, "leader": p.leader, "qty": p.qty, "cost": p.cost, "opened": p.opened,
+                   "initial_out": p.initial_out} for p in eng.positions.values()]
+    st["bankroll"] = round(after, 2)
     st["runs"].append({"start": dt.datetime.fromtimestamp(t_start, dt.timezone.utc).strftime("%Y-%m-%d %H:%M"),
                        "minutes": round((time.time() - t_start) / 60), "followed": len(follow),
-                       "copies": s["trades"], "before": round(before, 2), "after": st["bankroll"]})
+                       "copies": s["trades"], "before": round(before, 2), "after": st["bankroll"],
+                       "open": len(st["open"])})
     log = load_log(data)
     sc = update_statuses(st, log, DEFAULTS["min_trades"])
     save_state(data, st)
     write_report(data, st, sc, log)
     keep = sum(1 for i in st["leaders"].values() if i["status"] == "keep")
-    msg = (f"${before:,.2f} -> ${st['bankroll']:,.2f} this run ({s['trades']} copies). "
+    msg = (f"${before:,.2f} -> ${st['bankroll']:,.2f} this run ({s['trades']} copies, {len(st['open'])} open). "
            f"Total {st['bankroll'] / st['start_bankroll']:.2f}x since start. "
            f"Leaders: {keep} keep / {len(follow)} followed.")
     print(msg)
