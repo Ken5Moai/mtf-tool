@@ -128,7 +128,7 @@ def _is_bot(sol: Solana, addr: str) -> bool:
 
 
 def discover(sol: Solana, exclude: set, want: int, mints_n: int = 6, per_mint: int = 12,
-             budget_s: float = 420) -> dict:
+             budget_s: float = 420, screen_fn=None, rejected: dict | None = None) -> dict:
     """Candidate wallets, best prior first:
       1. early buyers of tokens that already ran (+2 per runner)
       2. recent traders of trending tokens (+1)
@@ -183,6 +183,18 @@ def discover(sol: Solana, exclude: set, want: int, mints_n: int = 6, per_mint: i
                 continue
         except Exception:
             continue
+        if screen_fn:
+            try:
+                j = screen_fn(addr, source[addr].split(":")[-1])
+            except Exception as e:
+                print(f"screen error {short(addr)}: {e}", file=sys.stderr)
+                continue
+            if not j["ok"]:
+                print(f"reject {short(addr)}: {j['reason']}", flush=True)
+                if rejected is not None:
+                    rejected[addr] = j["reason"]
+                continue
+            print(f"pass {short(addr)}: {j['reason']}", flush=True)
         picked[addr] = source[addr]
         print(f"candidate {short(addr)} score {pts} via {source[addr][:12]}", flush=True)
     return picked
@@ -342,12 +354,34 @@ def main(argv=None):
     t_end = t_start + a.minutes * 60
 
     sc = update_statuses(st, log, DEFAULTS["min_trades"])
+    st.setdefault("rejected", {})
+    from .backtest import screen
+    sol_usd = DexPrices().sol_usd() or 150.0
+
+    def screen_fn(addr, exclude_token=None):
+        return screen(sol, addr, sol_usd, exclude=[exclude_token] if exclude_token else [])
+
+    # past-performance gate for candidates added before the gate existed
+    for addr, info in st["leaders"].items():
+        if info["status"] == "candidate" and not info.get("screened") and time.time() < t_start + 900:
+            try:
+                j = screen_fn(addr, (info.get("source") or "").split(":")[-1])
+            except Exception as e:
+                print(f"screen error {short(addr)}: {e}", file=sys.stderr)
+                continue
+            info["screened"] = j["reason"]
+            if not j["ok"]:
+                info["status"] = "drop"
+                info["why"] = j["reason"]
+            print(f"screen {short(addr)}: {j['reason']}", flush=True)
     follow = choose(st, a.max_leaders)
     if len(follow) < a.max_leaders and not a.no_discover:
-        known = set(st["leaders"])
-        new = discover(sol, known, a.max_leaders - len(follow), budget_s=min(420, a.minutes * 60 * 0.3))
+        known = set(st["leaders"]) | set(st["rejected"])
+        new = discover(sol, known, a.max_leaders - len(follow), budget_s=min(1500, a.minutes * 60 * 0.3),
+                       screen_fn=screen_fn, rejected=st["rejected"])
         for addr, mint in new.items():
-            st["leaders"][addr] = {"status": "candidate", "added": int(time.time()), "source": mint}
+            st["leaders"][addr] = {"status": "candidate", "added": int(time.time()), "source": mint,
+                                   "screened": "past check passed"}
         follow = choose(st, a.max_leaders)
     save_state(data, st)
     if not follow:
