@@ -192,3 +192,19 @@ def test_backtest_replay_uses_leader_fills_plus_cost():
     r10 = replay(h, 10.0, 0, 3600, budget=100, size=1.0)
     assert abs(r10["end"] - 100 * 2 * 0.89 / 1.11) < 1e-6         # +10% copy cost each side
     assert median_hold(h["L"] * 3) == 3600
+
+
+def test_judge_gate():
+    from copybot.backtest import judge
+    one = [{"t": i * 600, "side": s, "token": "A", "px": p, "frac": 1.0}
+           for i, (s, p) in enumerate([("buy", 1), ("sell", 2)] * 3)]
+    assert not judge(one)["ok"] and "使い捨て" in judge(one)["reason"]
+    win, lose = [], []
+    for k, tok in enumerate("ABCDE"):
+        t = k * 7200
+        win += [{"t": t, "side": "buy", "token": tok, "px": 1.0, "frac": 1.0},
+                {"t": t + 3600, "side": "sell", "token": tok, "px": 1.5, "frac": 1.0}]
+        lose += [{"t": t, "side": "buy", "token": tok, "px": 1.0, "frac": 1.0},
+                 {"t": t + 3600, "side": "sell", "token": tok, "px": 0.9, "frac": 1.0}]
+    assert judge(win)["ok"] and judge(win)["multiple"] > 1
+    assert not judge(lose)["ok"] and "損" in judge(lose)["reason"]

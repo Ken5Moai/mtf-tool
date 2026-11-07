@@ -34,9 +34,9 @@ COSTS = (1.0, 3.0, 5.0, 10.0)
 
 
 # ---------------- data ----------------
-def history(sol: Solana, wallet: str, max_tx: int, sol_usd: float, cache: Path) -> list[dict]:
-    f = cache / f"{wallet}.json"
-    if f.exists():
+def history(sol: Solana, wallet: str, max_tx: int, sol_usd: float, cache: Path | None = None) -> list[dict]:
+    f = cache / f"{wallet}.json" if cache else None
+    if f and f.exists():
         return json.loads(f.read_text())
     out, before = [], None
     sigs = []
@@ -61,7 +61,8 @@ def history(sol: Solana, wallet: str, max_tx: int, sol_usd: float, cache: Path) 
         for tr in trades_from_tx(tx, wallet, wallet, sol_usd=sol_usd):
             if tr.px:
                 out.append({"t": tr.t, "side": tr.side, "token": tr.token, "px": tr.px, "frac": tr.frac})
-    f.write_text(json.dumps(out))
+    if f:
+        f.write_text(json.dumps(out))
     return out
 
 
@@ -110,6 +111,34 @@ def replay(trades_by_leader: dict, cost_pct: float, t0: float, t1: float, budget
 
 def per_leader(trades: list[dict], w: str, cost: float, t0: float, t1: float) -> dict:
     return replay({w: trades}, cost, t0, t1)
+
+
+def judge(h: list[dict], cost: float = 3.0, min_tokens: int = 3, min_exits: int = 4) -> dict:
+    """Would copying this wallet's past trades have made money? -> {ok, reason, multiple, tokens, exits}"""
+    tokens = len({x["token"] for x in h})
+    mh = median_hold(h)
+    out = {"ok": False, "tokens": tokens, "multiple": None, "exits": 0}
+    if tokens < min_tokens:
+        out["reason"] = f"使い捨て（{tokens}銘柄のみ）"
+        return out
+    if mh is not None and mh < 90:
+        out["reason"] = f"売買が速すぎる（保有{mh:.0f}秒）"
+        return out
+    w = "w"
+    r = replay({w: h}, cost, h[0]["t"], h[-1]["t"])
+    out.update(multiple=round(r["multiple"], 3), exits=r["exits"])
+    if r["exits"] < min_exits:
+        out["reason"] = f"決済が少ない（{r['exits']}回）"
+    elif r["multiple"] <= 1.0:
+        out["reason"] = f"過去にコピーしたら損（{r['multiple']:.2f}倍）"
+    else:
+        out["ok"], out["reason"] = True, f"過去にコピーしたら {r['multiple']:.2f}倍"
+    return out
+
+
+def screen(sol: Solana, wallet: str, sol_usd: float, exclude=(), max_tx: int = 80, cost: float = 3.0) -> dict:
+    h = [x for x in history(sol, wallet, max_tx, sol_usd) if x["token"] not in set(exclude)]
+    return judge(h, cost)
 
 
 # ---------------- main ----------------
