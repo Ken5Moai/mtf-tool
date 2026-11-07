@@ -111,7 +111,7 @@ def test_ops_selection_and_report(tmp_path):
     assert ops.choose(st, 5) == ["good", "new"]
     ops.save_state(tmp_path, st)
     txt = ops.write_report(tmp_path, ops.load_state(tmp_path), sc, log)
-    assert "Bankroll (paper, marked to market): $149.00" in txt and (tmp_path / "REPORT.md").exists()
+    assert "残高: $149.00" in txt and (tmp_path / "REPORT.md").exists()
 
 
 def test_cancel_copy_when_leader_exits_first_and_scalper_drop():
