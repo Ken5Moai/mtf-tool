@@ -52,6 +52,7 @@ class LeaderTrade:
     token: str
     frac: float = 1.0    # for sells: fraction of leader's position sold
     usd: Optional[float] = None
+    px: Optional[float] = None   # leader's own fill price (USD per token), if known
 
 
 @dataclass
@@ -85,6 +86,7 @@ class CopyEngine:
     realized: float = field(init=False, default=0.0)
     locked: bool = field(init=False, default=False)
     last_px: dict = field(init=False, default_factory=dict)
+    buy_filter: Optional[Callable[[str], Optional[str]]] = None   # token -> reason to skip, or None
 
     def __post_init__(self):
         self.cash = float(self.cfg.budget)
@@ -151,8 +153,14 @@ class CopyEngine:
         if usd < self.cfg.min_order:
             self._log(t, "skip", f"not enough cash to copy {tr.token}", token=tr.token)
             return
+        if self.buy_filter:
+            why = self.buy_filter(tr.token)
+            if why:
+                self._log(t, "skip", f"skipped {tr.token}: {why}", token=tr.token, leader=tr.leader)
+                return
+        ref = tr.px or self.price_fn(tr.token, tr.t)
+        chase = (px / ref - 1) * 100 if ref else None
         if self.cfg.max_chase_pct is not None:
-            ref = self.price_fn(tr.token, tr.t)
             if ref and px > ref * (1 + self.cfg.max_chase_pct / 100):
                 self._log(t, "skip", f"skipped {tr.token}: already +{(px / ref - 1) * 100:.0f}% since {tr.leader} bought",
                           token=tr.token, leader=tr.leader)
@@ -167,8 +175,9 @@ class CopyEngine:
         else:
             self.positions[key] = Position(tr.token, tr.leader, qty, usd, t)
         self.cash -= usd
-        self._log(t, "buy", f"Bought {tr.token}", usd=-usd, px=px, leader=tr.leader,
-                  token=tr.token, note=f"copied {tr.leader} {int(self.cfg.delay_s)}s later")
+        self._log(t, "buy", f"Bought {tr.token}", usd=-usd, px=px, leader=tr.leader, token=tr.token,
+                  chase_pct=round(chase, 2) if chase is not None else None,
+                  note=f"copied {tr.leader} {int(self.cfg.delay_s)}s later")
 
     def _close(self, t: float, key, frac: float, kind: str, note: str) -> None:
         pos = self.positions.get(key)

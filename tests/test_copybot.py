@@ -111,7 +111,7 @@ def test_ops_selection_and_report(tmp_path):
     assert ops.choose(st, 5) == ["good", "new"]
     ops.save_state(tmp_path, st)
     txt = ops.write_report(tmp_path, ops.load_state(tmp_path), sc, log)
-    assert "Bankroll (paper): $149.00" in txt and (tmp_path / "REPORT.md").exists()
+    assert "Bankroll (paper, marked to market): $149.00" in txt and (tmp_path / "REPORT.md").exists()
 
 
 def test_cancel_copy_when_leader_exits_first_and_scalper_drop():
@@ -127,3 +127,57 @@ def test_cancel_copy_when_leader_exits_first_and_scalper_drop():
                 {"kind": "watch", "leader": "a", "token": f"T{i}", "side": "sell", "t": i * 100 + 3}]
     ops.update_statuses(st, log, 20)
     assert st["leaders"]["a"]["status"] == "drop"
+
+
+def test_fill_price_from_sol_swap_and_chase_uses_it():
+    me = "W1"
+    tx = {"blockTime": 10,
+          "transaction": {"message": {"accountKeys": [{"pubkey": me}, {"pubkey": "pool"}]}},
+          "meta": {"err": None, "fee": 5000,
+                   "preBalances": [2_000_000_000, 0], "postBalances": [1_000_000_000 - 5000, 0],
+                   "preTokenBalances": [], "postTokenBalances": [
+                       {"owner": me, "mint": "MEME", "uiTokenAmount": {"uiAmount": 1_000_000}}]}}
+    tr = trades_from_tx(tx, me, "a", sol_usd=150.0)        # spent 1 SOL = $150 for 1M tokens
+    assert tr[0].side == "buy" and abs(tr[0].px - 0.00015) < 1e-12
+    cfg = Config(leaders=["a"], budget=100, delay_s=0, max_chase_pct=15, fee_bps=0, slippage_bps=0)
+    px = {"MEME": lambda t: 0.0002}                         # already +33% vs leader fill
+    tr[0].t = 0
+    eng = run(cfg, _flat(px), tr, 0, 10, step_s=1)
+    assert eng.stats()["trades"] == 0
+    px2 = {"MEME": lambda t: 0.00016}                       # +6.7%: copy, and record the cost
+    eng2 = run(cfg, _flat(px2), tr, 0, 10, step_s=1)
+    b = next(a for a in eng2.activity if a["kind"] == "buy")
+    assert abs(b["chase_pct"] - 6.67) < 0.01
+
+
+def test_sell_fraction_from_pre_balance_and_buy_filter():
+    me = "W1"
+    mk = lambda amt: [{"owner": me, "mint": "MEME", "uiTokenAmount": {"uiAmount": amt}}]
+    tx = {"blockTime": 1, "meta": {"err": None, "preTokenBalances": mk(400), "postTokenBalances": mk(100)}}
+    s = trades_from_tx(tx, me, "a")                         # no history: fraction from pre-balance
+    assert s[0].side == "sell" and abs(s[0].frac - 0.75) < 1e-9
+    from copybot.engine import CopyEngine
+    eng = CopyEngine(Config(leaders=["a"], budget=100, delay_s=0), lambda tok, t: 1.0)
+    eng.buy_filter = lambda tok: "liquidity $900 < $15,000"
+    eng.on_leader_trade(LeaderTrade(0, "a", "buy", "X")); eng.step(0)
+    assert eng.stats()["trades"] == 0 and any(a["kind"] == "skip" for a in eng.activity)
+
+
+def test_restore_positions(tmp_path):
+    from copybot import ops
+    from copybot.engine import CopyEngine
+
+    class FakeSol:
+        def token_balance(self, owner, mint):
+            return {"A": 0.0, "B": 10.0}[mint]
+
+    st = {"open": [{"token": "A", "leader": "L", "qty": 10, "cost": 10, "opened": 0},     # leader sold offline
+                   {"token": "B", "leader": "L", "qty": 10, "cost": 10, "opened": 0},     # still held -> keep
+                   {"token": "C", "leader": "L", "qty": 10, "cost": 10, "opened": 0},     # no price -> $0
+                   {"token": "B", "leader": "gone", "qty": 5, "cost": 5, "opened": 0}]}   # unfollowed -> close
+    prices = {"A": 2.0, "B": 3.0}
+    eng = CopyEngine(Config(leaders=["L"], budget=50, fee_bps=0, slippage_bps=0), lambda t, _: prices.get(t))
+    ops.restore_positions(eng, st, FakeSol(), ["L"])
+    assert list(eng.positions) == [("L", "B")]
+    assert round(eng.cash, 6) == 50 + 20 + 15
+    assert round(eng.mark(0), 6) == 85 + 30
