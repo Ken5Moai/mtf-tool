@@ -96,3 +96,19 @@ def test_score_leaders():
            [{"kind": "tp", "leader": "new", "pnl": 50, "pct": 900}] * 3
     v = {r["leader"]: r["verdict"] for r in score(rows)}
     assert v == {"good": "KEEP", "bad": "DROP", "new": "WAIT (3/20)"}
+
+
+def test_ops_selection_and_report(tmp_path):
+    from copybot import ops
+    st = ops.load_state(tmp_path)
+    assert st["bankroll"] == 149.0
+    st["leaders"] = {"good": {"status": "candidate", "added": 1}, "bad": {"status": "candidate", "added": 2},
+                     "new": {"status": "candidate", "added": 3}, "old": {"status": "drop", "added": 0}}
+    log = [{"kind": "sell", "leader": "good", "pnl": 5, "pct": 10}] * 20 + \
+          [{"kind": "stop", "leader": "bad", "pnl": -5, "pct": -40}] * 20
+    sc = ops.update_statuses(st, log, 20)
+    assert st["leaders"]["good"]["status"] == "keep" and st["leaders"]["bad"]["status"] == "drop"
+    assert ops.choose(st, 5) == ["good", "new"]
+    ops.save_state(tmp_path, st)
+    txt = ops.write_report(tmp_path, ops.load_state(tmp_path), sc, log)
+    assert "Bankroll (paper): $149.00" in txt and (tmp_path / "REPORT.md").exists()

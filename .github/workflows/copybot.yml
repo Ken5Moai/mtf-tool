@@ -1,0 +1,55 @@
+name: Copy Bot (paper)
+
+# Paper copy-trading of Solana wallets. No keys, no real orders.
+# Every 6h: score leaders -> discover new candidates -> follow ~5h40m -> close all
+# -> save state/log/report to the `copybot-data` branch -> ntfy summary.
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "How long to follow (minutes)"
+        default: "340"
+
+concurrency:
+  group: copybot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests numpy pandas
+      - name: Check out data branch
+        run: |
+          git config user.name "copybot"
+          git config user.email "copybot@users.noreply.github.com"
+          if git fetch --depth 1 origin copybot-data; then
+            git worktree add -B copybot-data data origin/copybot-data
+          else
+            git worktree add --orphan -b copybot-data data
+          fi
+      - name: Paper run
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          SOLANA_RPC: ${{ secrets.SOLANA_RPC }}
+        run: python -u -m copybot.ops --data data --minutes "${{ inputs.minutes || '340' }}"
+      - name: Save data
+        if: always()
+        run: |
+          cd data
+          git add -A
+          git commit -m "paper run $(date -u +%F_%H%M)" || exit 0
+          for i in 1 2 3; do git push origin copybot-data && break; sleep 5; git pull --rebase origin copybot-data || true; done

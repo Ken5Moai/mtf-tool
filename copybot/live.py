@@ -72,17 +72,32 @@ def trades_from_tx(tx: dict, owner: str, leader: str, held: dict) -> list[Leader
 
 
 class Solana:
-    def __init__(self, rpc: str):
+    """JSON-RPC client that respects the public node's per-method limit (~1 call/s) and retries 429s."""
+
+    def __init__(self, rpc: str, min_interval: float = 1.1):
         self.rpc = rpc
         self.s = requests.Session()
+        self.min_interval = min_interval
+        self.last: dict = {}
+        self.calls = 0
 
-    def call(self, method, params):
-        r = self.s.post(self.rpc, json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params}, timeout=20)
-        r.raise_for_status()
-        j = r.json()
-        if "error" in j:
-            raise RuntimeError(j["error"])
-        return j["result"]
+    def call(self, method, params, retries: int = 5):
+        for i in range(retries):
+            wait = self.last.get(method, 0) + self.min_interval - time.time()
+            if wait > 0:
+                time.sleep(wait)
+            self.last[method] = time.time()
+            self.calls += 1
+            r = self.s.post(self.rpc, json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params}, timeout=20)
+            if r.status_code == 429 or r.status_code >= 500:
+                time.sleep(min(30, 2 ** (i + 1)))
+                continue
+            r.raise_for_status()
+            j = r.json()
+            if "error" in j:
+                raise RuntimeError(j["error"])
+            return j["result"]
+        raise RuntimeError(f"{method}: rate limited after {retries} retries")
 
     def signatures(self, addr: str, until: Optional[str] = None, limit: int = 20):
         p = {"limit": limit}
@@ -91,7 +106,15 @@ class Solana:
         return self.call("getSignaturesForAddress", [addr, p])
 
     def tx(self, sig: str):
-        return self.call("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 0}])
+        return self.call("getTransaction", [sig, {"encoding": "jsonParsed", "maxSupportedTransactionVersion": 1}])
+
+
+def fee_payer(tx: dict) -> Optional[str]:
+    try:
+        k = tx["transaction"]["message"]["accountKeys"][0]
+        return k["pubkey"] if isinstance(k, dict) else k
+    except (KeyError, IndexError, TypeError):
+        return None
 
 
 class DexPrices:
@@ -117,6 +140,58 @@ class DexPrices:
         except Exception as e:  # network hiccup: keep last price
             print(f"price error {mint[:6]}: {e}", file=sys.stderr)
             return hit[1] if hit else None
+
+
+def paper_loop(eng: CopyEngine, wallets: dict, sol: "Solana", until: float, log=None,
+               poll: float = 2.0, echo: bool = True) -> CopyEngine:
+    """Follow `wallets` (name -> address) live until `until` (epoch) or the engine locks.
+    Each activity row also gets `lag_s`: seconds between the leader's on-chain trade and our detection."""
+    last, held = {}, {name: {} for name in wallets}
+    for name, addr in wallets.items():                 # start from "now": ignore history
+        try:
+            sigs = sol.signatures(addr, limit=1)
+            last[name] = sigs[0]["signature"] if sigs else None
+        except Exception as e:
+            print(f"rpc error {name}: {e}", file=sys.stderr)
+            last[name] = None
+    seen = 0
+    while not eng.locked and time.time() < until:
+        for name, addr in wallets.items():
+            try:
+                sigs = sol.signatures(addr, until=last[name]) if last[name] else sol.signatures(addr, limit=1)
+            except Exception as e:
+                print(f"rpc error {name}: {e}", file=sys.stderr)
+                continue
+            if sigs:
+                if last[name] is None:
+                    last[name] = sigs[0]["signature"]
+                    continue
+                last[name] = sigs[0]["signature"]
+            for s in reversed(sigs[:10]):              # a burst of >10 txs is a bot; only look at the newest
+                if s.get("err"):
+                    continue
+                try:
+                    tx = sol.tx(s["signature"])
+                    for tr in trades_from_tx(tx, addr, name, held[name]):
+                        now = time.time()
+                        lag = now - tr.t
+                        tr.t = now                     # copy delay counts from when WE saw it
+                        eng.on_leader_trade(tr)
+                        if eng.activity and eng.activity[-1]["kind"] == "watch":
+                            eng.activity[-1]["lag_s"] = round(lag, 1)
+                except Exception as e:
+                    print(f"tx error {s['signature'][:8]}: {e}", file=sys.stderr)
+            eng.step(time.time())
+        eng.step(time.time())
+        for act in eng.activity[seen:]:
+            if echo:
+                stamp = dt.datetime.fromtimestamp(act["t"]).strftime("%H:%M:%S")
+                print(f"[{stamp}] {act['kind']:5} {act['text']}  {act.get('note') or ''}", flush=True)
+            if log:
+                log.write(json.dumps(act) + "\n"); log.flush()
+        seen = len(eng.activity)
+        time.sleep(poll)
+    return eng
 
 
 def main(argv=None):
@@ -145,39 +220,9 @@ def main(argv=None):
                  stop_loss_x=(1 - a.stop / 100) if a.stop else None, max_chase_pct=a.max_chase)
     sol, px = Solana(a.rpc), DexPrices()
     eng = CopyEngine(cfg, px)
-    last = {}
-    held = {name: {} for name in wallets}
-    for name, addr in wallets.items():                 # start from "now": ignore history
-        sigs = sol.signatures(addr, limit=1)
-        last[name] = sigs[0]["signature"] if sigs else None
     print(f"PAPER mode. Watching {', '.join(wallets)}. budget ${a.budget:,.2f}, delay {a.delay:g}s, TP {a.tp:g}x")
-    seen = 0
     with open(a.log, "a") as f:
-        while not eng.locked:
-            for name, addr in wallets.items():
-                try:
-                    sigs = sol.signatures(addr, until=last[name])
-                except Exception as e:
-                    print(f"rpc error {name}: {e}", file=sys.stderr)
-                    continue
-                if sigs:
-                    last[name] = sigs[0]["signature"]
-                for s in reversed(sigs):
-                    if s.get("err"):
-                        continue
-                    try:
-                        for tr in trades_from_tx(sol.tx(s["signature"]), addr, name, held[name]):
-                            tr.t = max(tr.t, time.time() - 1)
-                            eng.on_leader_trade(tr)
-                    except Exception as e:
-                        print(f"tx error {s['signature'][:8]}: {e}", file=sys.stderr)
-            eng.step(time.time())
-            for act in eng.activity[seen:]:
-                stamp = dt.datetime.fromtimestamp(act["t"]).strftime("%H:%M:%S")
-                print(f"[{stamp}] {act['kind']:5} {act['text']}  {act.get('note') or ''}")
-                f.write(json.dumps(act) + "\n"); f.flush()
-            seen = len(eng.activity)
-            time.sleep(a.poll)
+        paper_loop(eng, wallets, sol, until=lock_at or float("inf"), log=f, poll=a.poll)
     st = eng.stats()
     print(f"Locked. ${st['start']:,.2f} -> ${st['end']:,.2f} ({st['pct']:+.1f}%, {st['multiple']:.2f}x)")
 

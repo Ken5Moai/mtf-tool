@@ -23,3 +23,15 @@
 ### 増やす方向に寄せる設定（シミュレーション上の検証結果は Reality check タブで再現可）
 - `--size 0.2 --stop 40 --max-chase 15`（1回20%・損切り-40%・相手より15%以上高ければ見送り）
 - 追う相手は `python -m copybot.score copybot_paper_log.jsonl` で「自分がコピーした場合の損益」で選別（20回以上・合計プラス・中央値プラスのみKEEP）
+
+### 自動運用（ペーパー）
+`.github/workflows/copybot.yml` が6時間ごとに `python -m copybot.ops` を実行：
+1. これまでの記録から追う相手を採点（KEEP / DROP / 様子見）
+2. 空き枠があれば DexScreener の注目トークンを売買した人間ペースのウォレットを候補追加（bot判定は除外）
+3. 約5時間40分、仮想資金で追従（1回20%・損切り-40%・+15%以上なら見送り・10倍利確・5秒遅れ）
+4. 全決済 → 結果を `copybot-data` ブランチ（`state.json` / `paper_log.jsonl` / `REPORT.md`）に保存、ntfy に1行通知
+
+- 成績を見る: `copybot-data` ブランチの `REPORT.md`
+- 手動実行: Actions → "Copy Bot (paper)" → Run workflow
+- 任意: リポジトリSecret `SOLANA_RPC` に有料/無料キー付きRPC（Helius等）のURLを入れると取りこぼしが減る
+- 実資金は扱わない。実弾化は REPORT で数週間プラスが続いてから人間が判断する
