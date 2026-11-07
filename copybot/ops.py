@@ -257,38 +257,57 @@ def restore_positions(eng: CopyEngine, st: dict, sol, follow: list) -> None:
 
 
 # ---------------- report / notify ----------------
+STATUS_JA = {"keep": "残す", "candidate": "様子見", "drop": "外す"}
+
+
+def _skip_reason(text: str) -> str:
+    if "liquidity" in text:
+        return "流動性不足"
+    if "already" in text:
+        return "相手より高すぎ"
+    if "exited before" in text:
+        return "コピー前に相手が売却"
+    if "cash" in text:
+        return "資金不足"
+    if "no price" in text:
+        return "価格取得不可"
+    return "その他"
+
+
 def write_report(data: Path, st: dict, sc: list[dict], log: list[dict]) -> str:
     b0, b = st["start_bankroll"], st["bankroll"]
-    lines = ["# Copy Bot paper report", "",
-             f"Updated: {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC  ",
-             f"**Bankroll (paper, marked to market): ${b:,.2f}** (start ${b0:,.2f}, {b / b0:.2f}x, "
-             f"{(b / b0 - 1) * 100:+.1f}%) — cash ${st.get('cash', b):,.2f}, {len(st.get('open', []))} open positions  ",
-             f"Runs: {len(st['runs'])}", "",
-             "## Leaders (scored on what copying them made)", "",
-             "| wallet | status | copies | total $ | median % | win % |", "|---|---|---|---|---|---|"]
+    lines = ["# コピーBot 成績レポート（仮想資金）", "",
+             f"更新: {dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=9):%Y-%m-%d %H:%M}（日本時間）  ",
+             f"**残高: ${b:,.2f}**（開始 ${b0:,.2f} → {b / b0:.2f}倍、{(b / b0 - 1) * 100:+.1f}%）  ",
+             f"内訳: 現金 ${st.get('cash', b):,.2f} ／ 保有中 {len(st.get('open', []))}件  ",
+             f"運用回数: {len(st['runs'])}回", "",
+             "## コピー相手の成績（自分がコピーした場合の損益で採点）", "",
+             "| ウォレット | 判定 | コピー回数 | 損益合計 $ | 中央値 % | 勝率 % |", "|---|---|---|---|---|---|"]
     by = {r["leader"]: r for r in sc}
     for addr, info in sorted(st["leaders"].items(), key=lambda kv: -by.get(kv[0], {}).get("total_pnl", 0)):
         r = by.get(addr, {})
-        lines.append(f"| `{short(addr)}` | {info['status']} | {r.get('copies', 0)} | {r.get('total_pnl', 0):.2f} | "
-                     f"{r.get('median_pct', 0):.1f} | {r.get('win_rate', 0):.1f} |")
-    lines += ["", "## Runs", "", "| start (UTC) | min | followed | copies | before | after |", "|---|---|---|---|---|---|"]
+        lines.append(f"| `{short(addr)}` | {STATUS_JA.get(info['status'], info['status'])} | {r.get('copies', 0)} | "
+                     f"{r.get('total_pnl', 0):.2f} | {r.get('median_pct', 0):.1f} | {r.get('win_rate', 0):.1f} |")
+    lines += ["", "判定: 残す＝20回以上コピーして損益プラス ／ 外す＝マイナス、または売買が速すぎる ／ 様子見＝回数不足",
+              "", "## 運用履歴（新しい順）", "",
+              "| 開始（UTC） | 分 | 追った人数 | コピー回数 | 開始時残高 | 終了時残高 |", "|---|---|---|---|---|---|"]
     for r in st["runs"][-30:][::-1]:
         lines.append(f"| {r['start']} | {r['minutes']} | {r['followed']} | {r['copies']} | "
-                     f"${r['before']:,.2f} | ${r['after']:,.2f} ({r.get('open', 0)} open) |")
+                     f"${r['before']:,.2f} | ${r['after']:,.2f}（保有{r.get('open', 0)}件） |")
+    lines += ["", "## 品質指標"]
     ch = sorted(a["chase_pct"] for a in log if a.get("kind") == "buy" and a.get("chase_pct") is not None)
     if ch:
-        lines += ["", f"Copy cost (our fill vs leader's fill): median {ch[len(ch) // 2]:+.1f}%, "
-                      f"p90 {ch[int(len(ch) * 0.9)]:+.1f}% over {len(ch)} buys."]
-    sk = Counter(a["text"].split(": ", 1)[-1].split(" ")[0] for a in log if a.get("kind") == "skip")
+        lines += ["", f"- 相手より高く買ってしまった割合: 中央値 {ch[len(ch) // 2]:+.1f}%、"
+                      f"悪い時(上位10%) {ch[int(len(ch) * 0.9)]:+.1f}%（{len(ch)}回の購入）"]
+    sk = Counter(_skip_reason(a["text"]) for a in log if a.get("kind") == "skip")
     if sk:
-        lines += ["", "Skipped copies: " + ", ".join(f"{k} {v}" for k, v in sk.most_common())]
+        lines += [f"- 見送ったコピー: " + "、".join(f"{k} {v}回" for k, v in sk.most_common())]
     lags = [a["lag_s"] for a in log if "lag_s" in a]
     if lags:
         lags.sort()
-        lines += ["", f"Detection lag (on-chain -> seen): median {lags[len(lags) // 2]:.1f}s, "
-                      f"p90 {lags[int(len(lags) * 0.9)]:.1f}s over {len(lags)} trades. "
-                      "Actual copy delay = this + configured delay."]
-    lines += ["", "Paper trading only. Not financial advice."]
+        lines += [f"- 相手の売買に気づくまでの時間: 中央値 {lags[len(lags) // 2]:.1f}秒、"
+                  f"遅い時 {lags[int(len(lags) * 0.9)]:.1f}秒（{len(lags)}件）"]
+    lines += ["", "※仮想資金での検証です。実際のお金は動いていません。投資助言ではありません。"]
     txt = "\n".join(lines) + "\n"
     (data / "REPORT.md").write_text(txt)
     return txt
@@ -333,7 +352,7 @@ def main(argv=None):
     save_state(data, st)
     if not follow:
         print("no leaders to follow")
-        notify("No leaders found this run.")
+        notify("今回はコピー相手が見つかりませんでした。")
         return
 
     cfg = Config(leaders=follow, budget=st["cash"], delay_s=DEFAULTS["delay_s"],
@@ -369,9 +388,10 @@ def main(argv=None):
     save_state(data, st)
     write_report(data, st, sc, log)
     keep = sum(1 for i in st["leaders"].values() if i["status"] == "keep")
-    msg = (f"${before:,.2f} -> ${st['bankroll']:,.2f} this run ({s['trades']} copies, {len(st['open'])} open). "
-           f"Total {st['bankroll'] / st['start_bankroll']:.2f}x since start. "
-           f"Leaders: {keep} keep / {len(follow)} followed.")
+    msg = (f"残高 ${before:,.2f} → ${st['bankroll']:,.2f}（今回{s['trades']}回コピー、保有中{len(st['open'])}件）\n"
+           f"開始から {st['bankroll'] / st['start_bankroll']:.2f}倍\n"
+           f"コピー相手: 残す{keep}人 ／ 今回追った{len(follow)}人\n"
+           f"※仮想資金")
     print(msg)
     notify(msg)
 
