@@ -200,6 +200,45 @@ def discover(sol: Solana, exclude: set, want: int, mints_n: int = 6, per_mint: i
     return picked
 
 
+def update_runner_registry(sol: Solana, st: dict, budget_s: float = 300, max_new: int = 5) -> int:
+    """Remember tokens that ran and who bought them early. Builds up across runs, so wallets that
+    were early in SEVERAL different runners (skill, not luck or insiders) can be found."""
+    reg = st.setdefault("runners", {})
+    t_end, added = time.time() + budget_s, 0
+    for mint, ch in runner_mints(n=10):
+        if mint in reg or added >= max_new or time.time() > t_end:
+            continue
+        buyers = []
+        try:
+            for sig in early_signatures(sol, mint, n_tx=30):
+                if time.time() > t_end:
+                    break
+                tx = sol.tx(sig)
+                payer = fee_payer(tx)
+                if payer and payer not in NOT_TRADERS and token_deltas(tx, payer).get(mint, 0) > 0:
+                    buyers.append(payer)
+        except Exception as e:
+            print(f"registry error {short(mint)}: {e}", file=sys.stderr)
+            continue
+        reg[mint] = {"seen": int(time.time()), "change_h24": round(ch), "early_buyers": sorted(set(buyers))}
+        added += 1
+        print(f"registry +{short(mint)} (+{ch:.0f}%): {len(set(buyers))} early buyers", flush=True)
+    cutoff = time.time() - 30 * 86400                  # keep 30 days
+    for m in [m for m, v in reg.items() if v["seen"] < cutoff]:
+        del reg[m]
+    return added
+
+
+def repeat_buyers(st: dict, exclude: set, min_runners: int = 2) -> list[tuple[str, int]]:
+    """Wallets that bought early in >= min_runners different runners, most first."""
+    c = Counter()
+    for v in st.get("runners", {}).values():
+        for w in v["early_buyers"]:
+            if w not in exclude:
+                c[w] += 1
+    return [(w, n) for w, n in c.most_common() if n >= min_runners]
+
+
 # ---------------- selection ----------------
 def hold_times(log: list[dict]) -> dict:
     """leader -> list of seconds between the leader's own buy and sell of a token (from 'watch' rows)."""
@@ -359,7 +398,9 @@ def main(argv=None):
     sol_usd = DexPrices().sol_usd() or 150.0
 
     def screen_fn(addr, exclude_token=None):
-        return screen(sol, addr, sol_usd, exclude=[exclude_token] if exclude_token else [])
+        # never judge a wallet on the runner tokens we picked it for (that would be look-ahead)
+        ex = set(st.get("runners", {})) | ({exclude_token} if exclude_token else set())
+        return screen(sol, addr, sol_usd, exclude=ex)
 
     # past-performance gate for candidates added before the gate existed
     for addr, info in st["leaders"].items():
@@ -375,7 +416,30 @@ def main(argv=None):
                 info["why"] = j["reason"]
             print(f"screen {short(addr)}: {j['reason']}", flush=True)
     follow = choose(st, a.max_leaders)
-    if len(follow) < a.max_leaders and not a.no_discover:
+    if not a.no_discover:
+        update_runner_registry(sol, st, budget_s=min(600, a.minutes * 60 * 0.1))
+        save_state(data, st)
+    if len(follow) < a.max_leaders and not a.no_discover:   # 1st choice: repeat early buyers
+        known = set(st["leaders"]) | set(st["rejected"])
+        for addr, n in repeat_buyers(st, known)[:15]:
+            if len(follow) >= a.max_leaders or time.time() > t_start + 1500:
+                break
+            try:
+                if _is_bot(sol, addr):
+                    st["rejected"][addr] = "bot"
+                    continue
+                j = screen_fn(addr)
+            except Exception as e:
+                print(f"screen error {short(addr)}: {e}", file=sys.stderr)
+                continue
+            print(f"repeat buyer {short(addr)} ({n} runners): {j['reason']}", flush=True)
+            if j["ok"]:
+                st["leaders"][addr] = {"status": "candidate", "added": int(time.time()),
+                                       "source": f"repeat:{n}", "screened": j["reason"]}
+                follow = choose(st, a.max_leaders)
+            else:
+                st["rejected"][addr] = j["reason"]
+    if len(follow) < a.max_leaders and not a.no_discover:   # fallback: one-off discovery
         known = set(st["leaders"]) | set(st["rejected"])
         new = discover(sol, known, a.max_leaders - len(follow), budget_s=min(1500, a.minutes * 60 * 0.3),
                        screen_fn=screen_fn, rejected=st["rejected"])

@@ -1,0 +1,39 @@
+name: Research - MTF backtest
+
+# Replays the MTF engine on ~60 days of real 5m data (Coinbase crypto, Yahoo FX/gold).
+# Results go to the `research-data` branch (RESULT.md in Japanese).
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Days of crypto history"
+        default: "60"
+
+permissions:
+  contents: write
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pandas numpy requests yfinance
+      - run: python -u research/backtest_mtf.py --out out --days "${{ inputs.days || '60' }}"
+      - name: Save results
+        if: always()
+        run: |
+          git config user.name "research-bot"
+          git config user.email "research-bot@users.noreply.github.com"
+          if git fetch --depth 1 origin research-data; then
+            git worktree add -B research-data rd origin/research-data
+          else
+            git worktree add --orphan -b research-data rd
+          fi
+          mkdir -p rd/mtf && cp -r out/* rd/mtf/ 2>/dev/null || true
+          cd rd && git add -A && (git commit -m "mtf backtest $(date -u +%F_%H%M)" || exit 0)
+          git push origin research-data

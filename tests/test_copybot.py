@@ -208,3 +208,11 @@ def test_judge_gate():
                  {"t": t + 3600, "side": "sell", "token": tok, "px": 0.9, "frac": 1.0}]
     assert judge(win)["ok"] and judge(win)["multiple"] > 1
     assert not judge(lose)["ok"] and "損" in judge(lose)["reason"]
+
+
+def test_repeat_buyers():
+    from copybot import ops
+    st = {"runners": {"R1": {"seen": 0, "early_buyers": ["a", "b", "c"]},
+                      "R2": {"seen": 0, "early_buyers": ["a", "c"]},
+                      "R3": {"seen": 0, "early_buyers": ["a"]}}}
+    assert ops.repeat_buyers(st, exclude={"c"}) == [("a", 3)]
