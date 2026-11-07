@@ -1,0 +1,46 @@
+{
+ "bankroll": 79.8,
+ "start_bankroll": 149.0,
+ "leaders": {
+  "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "HMYd9tosnUXuNHmq7pXmoePRVBLBBjA3JBfydq6upump"
+  },
+  "4QyzHMr4PXtEccLMTfk2yCy8hU9YH3PDGxtJQpE2Cc74": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "4AN9uwPTNFfFCFzR4n9KaVk3JyLmMACewf3aXV6Zpump"
+  },
+  "DQQKPuN6yxnwY8KsJacLxRdhNRv4pftydAWZBGKGoU9T": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "4AN9uwPTNFfFCFzR4n9KaVk3JyLmMACewf3aXV6Zpump"
+  },
+  "9fxtxTaVQraMi6iGaGqNFh5t4iYC9YFoUxqFFw7Gk6Cz": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "4AN9uwPTNFfFCFzR4n9KaVk3JyLmMACewf3aXV6Zpump"
+  },
+  "HqPvnBqDdrVyXYApknGWzVCePr2iRkBfeS52EqoPExXM": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "4AN9uwPTNFfFCFzR4n9KaVk3JyLmMACewf3aXV6Zpump"
+  },
+  "4JazUC8F8wS5rSEbJmovXfACj2GtDNE9hcHMpC7BSKPk": {
+   "status": "candidate",
+   "added": 1794059625,
+   "source": "4AN9uwPTNFfFCFzR4n9KaVk3JyLmMACewf3aXV6Zpump"
+  }
+ },
+ "runs": [
+  {
+   "start": "2026-11-07 13:52",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 20,
+   "before": 149.0,
+   "after": 79.8
+  }
+ ]
+}
