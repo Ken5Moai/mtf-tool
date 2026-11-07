@@ -112,3 +112,18 @@ def test_ops_selection_and_report(tmp_path):
     ops.save_state(tmp_path, st)
     txt = ops.write_report(tmp_path, ops.load_state(tmp_path), sc, log)
     assert "Bankroll (paper): $149.00" in txt and (tmp_path / "REPORT.md").exists()
+
+
+def test_cancel_copy_when_leader_exits_first_and_scalper_drop():
+    cfg = Config(leaders=["a"], budget=100, delay_s=10, fee_bps=0, slippage_bps=0)
+    px = {"X": lambda t: 1.0}
+    eng = run(cfg, _flat(px), [LeaderTrade(0, "a", "buy", "X"), LeaderTrade(2, "a", "sell", "X")], 0, 60, step_s=1)
+    assert eng.stats()["trades"] == 0 and eng.cash == 100
+    from copybot import ops
+    st = {"leaders": {"a": {"status": "candidate", "added": 0}}}
+    log = []
+    for i in range(6):
+        log += [{"kind": "watch", "leader": "a", "token": f"T{i}", "side": "buy", "t": i * 100},
+                {"kind": "watch", "leader": "a", "token": f"T{i}", "side": "sell", "t": i * 100 + 3}]
+    ops.update_statuses(st, log, 20)
+    assert st["leaders"]["a"]["status"] == "drop"

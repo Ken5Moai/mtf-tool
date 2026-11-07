@@ -96,7 +96,16 @@ class CopyEngine:
         if tr.side == "sell" and not self.cfg.mirror_exits:
             return
         self._log(tr.t, "watch", f"{tr.leader} {'bought' if tr.side == 'buy' else 'sold'} {tr.token}",
-                  leader=tr.leader, token=tr.token)
+                  leader=tr.leader, token=tr.token, side=tr.side)
+        if tr.side == "sell":                       # leader already out before our copy filled -> cancel it
+            stale = [p for p in self.pending if p.trade.side == "buy"
+                     and p.trade.leader == tr.leader and p.trade.token == tr.token]
+            if stale:
+                self.pending = [p for p in self.pending if p not in stale]
+                self._log(tr.t, "skip", f"cancelled {tr.token}: {tr.leader} exited before our copy",
+                          leader=tr.leader, token=tr.token)
+                if (tr.leader, tr.token) not in self.positions:
+                    return
         self.pending.append(_Pending(tr.t + self.cfg.delay_s, tr))
 
     def step(self, now: float) -> None:

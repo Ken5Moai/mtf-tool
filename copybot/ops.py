@@ -122,7 +122,27 @@ def discover(sol: Solana, exclude: set, want: int, mints_n: int = 6, per_mint: i
 
 
 # ---------------- selection ----------------
-def update_statuses(st: dict, log: list[dict], min_trades: int) -> list[dict]:
+def hold_times(log: list[dict]) -> dict:
+    """leader -> list of seconds between the leader's own buy and sell of a token (from 'watch' rows)."""
+    opened, out = {}, {}
+    for a in log:
+        if a.get("kind") != "watch" or not a.get("leader"):
+            continue
+        k = (a["leader"], a.get("token"))
+        if a.get("side") == "buy":
+            opened.setdefault(k, a["t"])
+        elif a.get("side") == "sell" and k in opened:
+            out.setdefault(a["leader"], []).append(a["t"] - opened.pop(k))
+    return out
+
+
+def update_statuses(st: dict, log: list[dict], min_trades: int, min_hold_s: float = 90) -> list[dict]:
+    """Score leaders; also drop scalpers whose median hold is shorter than we can react."""
+    for leader, hs in hold_times(log).items():
+        info = st["leaders"].get(leader)
+        if info and info["status"] == "candidate" and len(hs) >= 5 and sorted(hs)[len(hs) // 2] < min_hold_s:
+            info["status"] = "drop"
+            info["why"] = f"scalper: median hold {sorted(hs)[len(hs) // 2]:.0f}s"
     sc = score(log, min_trades=min_trades)
     for r in sc:
         info = st["leaders"].get(r["leader"])
@@ -146,7 +166,7 @@ def choose(st: dict, max_leaders: int) -> list[str]:
 def write_report(data: Path, st: dict, sc: list[dict], log: list[dict]) -> str:
     b0, b = st["start_bankroll"], st["bankroll"]
     lines = ["# Copy Bot paper report", "",
-             f"Updated: {dt.datetime.utcnow():%Y-%m-%d %H:%M} UTC  ",
+             f"Updated: {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC  ",
              f"**Bankroll (paper): ${b:,.2f}** (start ${b0:,.2f}, {b / b0:.2f}x, {(b / b0 - 1) * 100:+.1f}%)  ",
              f"Runs: {len(st['runs'])}", "",
              "## Leaders (scored on what copying them made)", "",
@@ -231,7 +251,7 @@ def main(argv=None):
                     f.write(json.dumps(act) + "\n")
     s = eng.stats()
     st["bankroll"] = round(s["end"], 2)
-    st["runs"].append({"start": dt.datetime.utcfromtimestamp(t_start).strftime("%Y-%m-%d %H:%M"),
+    st["runs"].append({"start": dt.datetime.fromtimestamp(t_start, dt.timezone.utc).strftime("%Y-%m-%d %H:%M"),
                        "minutes": round((time.time() - t_start) / 60), "followed": len(follow),
                        "copies": s["trades"], "before": round(before, 2), "after": st["bankroll"]})
     log = load_log(data)
