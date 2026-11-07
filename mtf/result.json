@@ -1,0 +1,106 @@
+{
+ "BTC/USD": {
+  "trades": 42,
+  "win_rate": 42.9,
+  "avg_r": -0.226,
+  "total_r": -9.5,
+  "equity_x": 0.9058,
+  "max_dd_pct": 14.8,
+  "bars": 17281,
+  "from": "2026-09-08",
+  "to": "2026-11-07",
+  "cost_pct_side": 0.1
+ },
+ "ETH/USD": {
+  "trades": 38,
+  "win_rate": 34.2,
+  "avg_r": -0.409,
+  "total_r": -15.56,
+  "equity_x": 0.853,
+  "max_dd_pct": 17.2,
+  "bars": 17280,
+  "from": "2026-09-08",
+  "to": "2026-11-07",
+  "cost_pct_side": 0.1
+ },
+ "SOL/USD": {
+  "trades": 51,
+  "win_rate": 23.5,
+  "avg_r": -0.623,
+  "total_r": -31.77,
+  "equity_x": 0.7248,
+  "max_dd_pct": 29.4,
+  "bars": 17280,
+  "from": "2026-09-08",
+  "to": "2026-11-07",
+  "cost_pct_side": 0.1
+ },
+ "XRP/USD": {
+  "trades": 53,
+  "win_rate": 43.4,
+  "avg_r": -0.045,
+  "total_r": -2.38,
+  "equity_x": 0.9712,
+  "max_dd_pct": 10.2,
+  "bars": 17280,
+  "from": "2026-09-08",
+  "to": "2026-11-07",
+  "cost_pct_side": 0.1
+ },
+ "USD/JPY": {
+  "trades": 53,
+  "win_rate": 34.0,
+  "avg_r": -0.319,
+  "total_r": -16.88,
+  "equity_x": 0.8412,
+  "max_dd_pct": 22.9,
+  "bars": 16695,
+  "from": "2026-08-17",
+  "to": "2026-11-06",
+  "cost_pct_side": 0.01
+ },
+ "EUR/USD": {
+  "trades": 61,
+  "win_rate": 39.3,
+  "avg_r": -0.146,
+  "total_r": -8.88,
+  "equity_x": 0.9087,
+  "max_dd_pct": 17.1,
+  "bars": 16761,
+  "from": "2026-08-17",
+  "to": "2026-11-06",
+  "cost_pct_side": 0.01
+ },
+ "GBP/JPY": {
+  "trades": 68,
+  "win_rate": 38.2,
+  "avg_r": -0.202,
+  "total_r": -13.73,
+  "equity_x": 0.8671,
+  "max_dd_pct": 23.0,
+  "bars": 16757,
+  "from": "2026-08-17",
+  "to": "2026-11-06",
+  "cost_pct_side": 0.01
+ },
+ "GOLD": {
+  "trades": 42,
+  "win_rate": 35.7,
+  "avg_r": -0.164,
+  "total_r": -6.9,
+  "equity_x": 0.9304,
+  "max_dd_pct": 9.6,
+  "bars": 13628,
+  "from": "2026-08-28",
+  "to": "2026-11-06",
+  "cost_pct_side": 0.01
+ },
+ "ALL": {
+  "trades": 408,
+  "win_rate": 36.5,
+  "avg_r": -0.259,
+  "total_r": -105.6,
+  "equity_x": 0.3354,
+  "max_dd_pct": 72.1
+ }
+}
