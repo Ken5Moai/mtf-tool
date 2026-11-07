@@ -19,3 +19,7 @@
 
 構成: `copybot/engine.py`（売買ロジック）, `command.py`（指示文パーサ）, `sim.py`（仮想市場・モンテカルロ）, `live.py`（Solana RPC + DexScreener ペーパー追跡）。
 「Reality check」タブで同じルールを数百晩回し、動画のような13倍がどれくらいの確率かを確認できます。
+
+### 増やす方向に寄せる設定（シミュレーション上の検証結果は Reality check タブで再現可）
+- `--size 0.2 --stop 40 --max-chase 15`（1回20%・損切り-40%・相手より15%以上高ければ見送り）
+- 追う相手は `python -m copybot.score copybot_paper_log.jsonl` で「自分がコピーした場合の損益」で選別（20回以上・合計プラス・中央値プラスのみKEEP）

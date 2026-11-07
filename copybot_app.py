@@ -55,6 +55,13 @@ with st.sidebar:
                      help="0.30 = 3 of 10 tokens the traders buy actually pump.")
     seed = st.number_input("Night #", 0, 100000, 7, step=1)
     fee = st.slider("Fee + slippage per side (%)", 0.0, 6.0, 2.5, 0.5)
+    st.divider()
+    st.header("Risk controls")
+    safe = st.toggle("Recommended preset", value=False,
+                     help="20% per trade, stop -40%, skip if already +15% since the leader bought.")
+    size_pct = st.slider("Size per copy (% of equity)", 5, 100, 20 if safe else 50, 5)
+    sl = st.slider("Stop loss (%)", 0, 90, 40 if safe else 0, 5, help="0 = off")
+    chase = st.slider("Skip if price already ran (%)", 0, 100, 15 if safe else 0, 5, help="0 = off")
     st.caption("Simulated market. No real money, no real orders.")
 
 st.markdown("### 🤖 Copy Bot")
@@ -63,6 +70,9 @@ pt = parse_task(task, budget=budget, now=START)
 cfg = pt.config
 cfg.fee_bps = fee * 100 * 0.4
 cfg.slippage_bps = fee * 100 * 0.6
+cfg.size_frac = size_pct / 100
+cfg.stop_loss_x = 1 - sl / 100 if sl else None
+cfg.max_chase_pct = chase or None
 
 st.markdown(f"<div class='bubble'>{task}</div>", unsafe_allow_html=True)
 st.markdown(f"<div class='bot'>{pt.reply}</div>", unsafe_allow_html=True)
@@ -90,7 +100,7 @@ with tab_live:
                                line=dict(color="#e03131" if neg else "#2f9e44", width=2.5),
                                fill="tozeroy", fillcolor="rgba(47,158,68,0.08)" if not neg else "rgba(224,49,49,0.08)"))
     for a in eng.activity:
-        if a["kind"] in ("buy", "sell", "tp"):
+        if a["kind"] in ("buy", "sell", "tp", "stop"):
             v = np.interp(a["t"], eq["t"], eq["v"])
             txt = f"Bought {a['token']}" if a["kind"] == "buy" else f"{a['pnl']:+,.0f}"
             fig.add_annotation(x=pd.to_datetime(a["t"], unit="s"), y=v, text=txt, showarrow=False,
@@ -105,7 +115,7 @@ with tab_live:
     acts = eng.activity
     watch = [a for a in acts if a["kind"] == "watch"]
     buys = [a for a in acts if a["kind"] == "buy"]
-    exits = [a for a in acts if a["kind"] in ("sell", "tp", "lock") and "pnl" in a]
+    exits = [a for a in acts if a["kind"] in ("sell", "tp", "stop", "lock") and "pnl" in a]
     tps = [a for a in exits if a["kind"] == "tp"]
     c1, c2, c3, c4 = st.columns(4)
     c1.markdown(f"<div class='card'><h4>Watcher</h4><div class='k'>{len(cfg.leaders)} traders</div>"
@@ -122,7 +132,7 @@ with tab_live:
     st.markdown("#### Activity")
     rows = []
     for a in reversed(acts):
-        if a["kind"] in ("watch", "skip"):
+        if a["kind"] == "watch":
             continue
         t = dt.datetime.fromtimestamp(a["t"]).strftime("%-I:%M %p")
         if a["kind"] == "buy":

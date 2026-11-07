@@ -75,3 +75,24 @@ def test_live_tx_parsing():
     s = trades_from_tx(tx(1000, 750), me, "a", held)
     assert s[0].side == "sell" and abs(s[0].frac - 0.25) < 1e-9
     assert trades_from_tx({"meta": {"err": "x"}}, me, "a", held) == []
+
+
+def test_stop_loss_and_chase_filter():
+    cfg = Config(leaders=["a"], budget=100, delay_s=30, take_profit_x=None, fee_bps=0, slippage_bps=0,
+                 stop_loss_x=0.6, size_frac=1.0)
+    px = {"X": lambda t: 1.0 if t < 100 else 0.5}
+    eng = run(cfg, _flat(px), [LeaderTrade(0, "a", "buy", "X")], 0, 300, step_s=5)
+    assert any(a["kind"] == "stop" for a in eng.activity) and round(eng.cash, 6) == 50
+    cfg2 = Config(leaders=["a"], budget=100, delay_s=30, max_chase_pct=15, fee_bps=0, slippage_bps=0)
+    px2 = {"X": lambda t: 1.0 if t < 30 else 1.3}
+    eng2 = run(cfg2, _flat(px2), [LeaderTrade(0, "a", "buy", "X")], 0, 100, step_s=5)
+    assert eng2.stats()["trades"] == 0 and eng2.cash == 100
+
+
+def test_score_leaders():
+    from copybot.score import score
+    rows = [{"kind": "sell", "leader": "good", "pnl": 5, "pct": 10}] * 20 + \
+           [{"kind": "stop", "leader": "bad", "pnl": -5, "pct": -40}] * 20 + \
+           [{"kind": "tp", "leader": "new", "pnl": 50, "pct": 900}] * 3
+    v = {r["leader"]: r["verdict"] for r in score(rows)}
+    assert v == {"good": "KEEP", "bad": "DROP", "new": "WAIT (3/20)"}

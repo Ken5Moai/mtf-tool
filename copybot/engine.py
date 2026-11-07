@@ -32,6 +32,11 @@ class Config:
     fee_bps: float = 100.0                   # per side (platform fee)
     slippage_bps: float = 150.0              # per side (memecoin slippage)
     min_order: float = 1.0
+    # --- risk controls (all off by default = behaviour shown in the video) ---
+    stop_loss_x: Optional[float] = None      # sell all if value <= cost * x (e.g. 0.6 = -40%)
+    take_initial_x: Optional[float] = None   # at this multiple, sell enough to get the stake back
+    max_chase_pct: Optional[float] = None    # skip copy if price already ran > N% since leader's buy
+    max_hold_s: Optional[float] = None       # sell if held longer than this
 
     def slice_frac(self) -> float:
         if self.size_frac:
@@ -56,6 +61,7 @@ class Position:
     qty: float
     cost: float          # USD spent incl. fees
     opened: float
+    initial_out: bool = False
 
     def value(self, px: float) -> float:
         return self.qty * px
@@ -136,6 +142,12 @@ class CopyEngine:
         if usd < self.cfg.min_order:
             self._log(t, "skip", f"not enough cash to copy {tr.token}", token=tr.token)
             return
+        if self.cfg.max_chase_pct is not None:
+            ref = self.price_fn(tr.token, tr.t)
+            if ref and px > ref * (1 + self.cfg.max_chase_pct / 100):
+                self._log(t, "skip", f"skipped {tr.token}: already +{(px / ref - 1) * 100:.0f}% since {tr.leader} bought",
+                          token=tr.token, leader=tr.leader)
+                return
         fill = px * (1 + self._side_cost())
         qty = usd / fill
         key = (tr.leader, tr.token)
@@ -178,12 +190,22 @@ class CopyEngine:
         self._close(t, key, tr.frac, "sell", f"{tr.leader} sold - same exit")
 
     def _check_tp(self, t: float) -> None:
-        if not self.cfg.take_profit_x:
-            return
+        c = self.cfg
         for key, pos in list(self.positions.items()):
             px = self._px(pos.token, t)
-            if px and pos.cost > 0 and pos.value(px) >= pos.cost * self.cfg.take_profit_x:
-                self._close(t, key, 1.0, "tp", f"take profit {self.cfg.take_profit_x:g}x")
+            if not px or pos.cost <= 0:
+                continue
+            m = pos.value(px) / pos.cost
+            if c.take_profit_x and m >= c.take_profit_x:
+                self._close(t, key, 1.0, "tp", f"take profit {c.take_profit_x:g}x")
+            elif c.stop_loss_x and m <= c.stop_loss_x:
+                self._close(t, key, 1.0, "stop", f"stop loss {(c.stop_loss_x - 1) * 100:.0f}%")
+            elif c.max_hold_s and t - pos.opened >= c.max_hold_s:
+                self._close(t, key, 1.0, "sell", f"max hold {c.max_hold_s / 60:.0f}min")
+            elif c.take_initial_x and not pos.initial_out and m >= c.take_initial_x:
+                pos.initial_out = True
+                frac = 1.0 / (m * (1 - self._side_cost()))     # sell enough to recover the stake
+                self._close(t, key, min(1.0, frac), "tp", f"took initial out at {c.take_initial_x:g}x")
 
     def _lock(self, t: float) -> None:
         for key in list(self.positions):
@@ -199,7 +221,7 @@ class CopyEngine:
     def stats(self) -> dict:
         start = self.cfg.budget
         end = self.equity[-1][1] if self.equity else self.cash
-        sells = [a for a in self.activity if a["kind"] in ("sell", "tp", "lock") and "pnl" in a]
+        sells = [a for a in self.activity if a["kind"] in ("sell", "tp", "stop", "lock") and "pnl" in a]
         wins = [a for a in sells if a["pnl"] > 0]
         return {
             "start": start,

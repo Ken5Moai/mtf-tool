@@ -127,6 +127,9 @@ def main(argv=None):
     ap.add_argument("--tp", type=float, default=10.0)
     ap.add_argument("--lock", default=None, help="HH:MM local time to close everything")
     ap.add_argument("--no-mirror", action="store_true")
+    ap.add_argument("--size", type=float, default=None, help="fraction of equity per copy, e.g. 0.2")
+    ap.add_argument("--stop", type=float, default=None, help="stop loss in %%, e.g. 40")
+    ap.add_argument("--max-chase", type=float, default=None, help="skip if price ran more than N%% since leader bought")
     ap.add_argument("--rpc", default=os.environ.get("SOLANA_RPC", "https://api.mainnet-beta.solana.com"))
     ap.add_argument("--poll", type=float, default=5.0)
     ap.add_argument("--log", default="copybot_paper_log.jsonl")
@@ -138,7 +141,8 @@ def main(argv=None):
         h, m = map(int, a.lock.split(":"))
         lock_at = next_occurrence(dt.time(h, m), dt.datetime.now()).timestamp()
     cfg = Config(leaders=list(wallets), budget=a.budget, delay_s=a.delay, take_profit_x=a.tp,
-                 lock_at=lock_at, mirror_exits=not a.no_mirror)
+                 lock_at=lock_at, mirror_exits=not a.no_mirror, size_frac=a.size,
+                 stop_loss_x=(1 - a.stop / 100) if a.stop else None, max_chase_pct=a.max_chase)
     sol, px = Solana(a.rpc), DexPrices()
     eng = CopyEngine(cfg, px)
     last = {}
