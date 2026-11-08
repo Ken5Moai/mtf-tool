@@ -1,5 +1,5 @@
 {
- "bankroll": 62.12,
+ "bankroll": 49.29,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -99,24 +99,33 @@
    "before": 67.4,
    "after": 62.12,
    "open": 2
+  },
+  {
+   "start": "2026-11-08 13:28",
+   "minutes": 340,
+   "followed": 2,
+   "copies": 3,
+   "before": 54.62,
+   "after": 49.29,
+   "open": 2
   }
  ],
- "cash": 34.259347,
+ "cash": 7.878731,
  "open": [
   {
    "token": "HJSxvcZGCbqdAsCevow1sBYJrdU7hwf6MCzxuR1nyhc6",
    "leader": "5e96SkPWmHz9cizDSqoqVahvf6QQjRS9xdJA7ueYuvD1",
-   "qty": 723883.3894615099,
-   "cost": 15.96,
+   "qty": 1753270.055580799,
+   "cost": 36.41421544400343,
    "opened": 1794086059.966839,
    "initial_out": false
   },
   {
-   "token": "GpHqE5wExpBPTqd3guJu8AcVzdRjtiPcU7aGofADpump",
+   "token": "DNYRJmZuD7cx3rXjaoosQyDx5QBV8ZS3eBWWnUFbpump",
    "leader": "5mEGTssEx2qb9fvNhqwhmVaJxLqBSB2A41svfq8jL8fb",
-   "qty": 251700.40382933084,
-   "cost": 12.546195404175865,
-   "opened": 1794142656.9977438,
+   "qty": 72924.1635861467,
+   "cost": 9.933911874113868,
+   "opened": 1794158464.4922848,
    "initial_out": false
   }
  ],
@@ -190,7 +199,25 @@
   "8gmRdWGUHPdH1zVfqzZ3kAkoqu2c3rjMPeBWGtuEkddt": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "6hCaYQCuv13z5oyi1nk39YaaPNoJSJo4aTCVybaPiujz": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "8Una3GkbPM6nvkXCbwGZydcCi3UMwDaCZPnQJJ4ST57f": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
-  "J5DS2BSuKRwBiFTkPe2sMnBXPQ45zrvdXNMfD3Lz5s1f": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09"
+  "J5DS2BSuKRwBiFTkPe2sMnBXPQ45zrvdXNMfD3Lz5s1f": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "DDqrfD3qPqqhDCzCQmf6A1R4iUoapRCMTSQq7xuYBsCu": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "Cx2CJosnQQfJj4soxV75BPJQducZLUmyXwBiqjtzjHoJ": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9V8FfuiJMLQSQsuT6NaiCmTuCrS72bruhFZ2MaoRF5Dd": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "2Yas47RDXhYeXPAKZG3iezGEcGhZjvjmbKuGtwjjxQuz": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "2okz7nY6AYYGk81C7zP4J6USYSbd6Awcv7RdocAochTG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "8DcDxdrLdnmtE3wFmeQvJu7xP53ZXJq4FQiFsKokhrjG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "CciVD5dGeFGh3ouuKCjbwNguYVHLGnqwP2TNgTgKJ5Ze": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "HvJrdtFn76VQN3E7zEMWcfWrUneyFL7jFAcLFLZfNwAJ": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "8qLqnQY1wXT5aBivC3djqExW5CgRy55UQUKDGSpzC4WS": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "HDWCwgwMfh9aDfJ2yPohwEmMBdAgnxsWbSF9jJRB75Dp": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "F1LDvrFG7r1SiihNCZZyaQPrrpeHaoedkyki56V4wgEy": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "2HFjQ7UGP5oHMGEGaDGyBdWLJbrwdMFRLsRNStNeT148": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "4C9nEwZ7qx25LzbC1QjWRsxx2SDZyh2TxYr6CsYWdMyn": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6wf3EDpkuu2fKhvUXbf8voJnT4Byeyav2ocv6g1kbmaG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "pPHLuoP1eRxYYhydo6fHoSR4cy1ib9sUmtnoZikRn4J": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "3frfoxDxuZCJzNHNCSAXktb8DH68RFBicsxrA8Sr5j91": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "7Y8ByC1G7VUR4BKwZZaxY1EqeZpt5khktBDefmKGfH13": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "9gVzCxvtuzzrjRA9EXuYkxUarTvv2mDZ3MuE4aKF8ivw": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -223,6 +250,11 @@
   "HxAyQ3CH4fpYE3gRAvaaDvbx4b1XyX87MyAGwgdipump": {
    "seen": 1794124154,
    "change_h24": 659,
+   "early_buyers": []
+  },
+  "4HqpRjsRS8pjdWa2B3mBAmNNxTXUeJ9L6AfFnRgipump": {
+   "seen": 1794144534,
+   "change_h24": 257,
    "early_buyers": []
   }
  }
