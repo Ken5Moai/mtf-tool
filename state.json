@@ -1,5 +1,5 @@
 {
- "bankroll": 78.25,
+ "bankroll": 87.42,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -68,6 +68,12 @@
    "added": 1794177407,
    "source": "recent:DDDfDJGreM6pYbKEiB8NqkZ3RhgG9Q1zKK58SvcHpump",
    "screened": "past check passed"
+  },
+  "5F7dNobLkoBYgD1fCMSz6nbY9K4gAttH3kCmmPjc4Qyb": {
+   "status": "candidate",
+   "added": 1794207754,
+   "source": "recent:DDDfDJGreM6pYbKEiB8NqkZ3RhgG9Q1zKK58SvcHpump",
+   "screened": "past check passed"
   }
  },
  "runs": [
@@ -123,9 +129,18 @@
    "before": 53.78,
    "after": 78.25,
    "open": 1
+  },
+  {
+   "start": "2026-11-09 06:36",
+   "minutes": 340,
+   "followed": 4,
+   "copies": 7,
+   "before": 78.25,
+   "after": 87.42,
+   "open": 2
   }
  ],
- "cash": 50.651425,
+ "cash": 40.979117,
  "open": [
   {
    "token": "HJSxvcZGCbqdAsCevow1sBYJrdU7hwf6MCzxuR1nyhc6",
@@ -133,6 +148,14 @@
    "qty": 1753270.055580799,
    "cost": 36.41421544400343,
    "opened": 1794086059.966839,
+   "initial_out": false
+  },
+  {
+   "token": "DDDfDJGreM6pYbKEiB8NqkZ3RhgG9Q1zKK58SvcHpump",
+   "leader": "5F7dNobLkoBYgD1fCMSz6nbY9K4gAttH3kCmmPjc4Qyb",
+   "qty": 138925.22368422165,
+   "cost": 15.649579134968356,
+   "opened": 1794208374.3553195,
    "initial_out": false
   }
  ],
@@ -258,7 +281,29 @@
   "2LcgjKcbm8hLVSNugNv16dKF48bpzkzsSpizi41Lk3G6": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "NdFt7EGAo2JaGkf8yGdAwzfn7DwLfdmteQEPaFD4gVV": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670935\u79d2\uff09",
   "BqD1Es4bAz6FRCb9BAejjdcerKRgDnVHrz7N9a2T7wD9": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.39\u500d\uff09",
-  "ET1JUCTwzwPzxsP7a9FcePRGeftJbpxorLwydoCFCujs": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.59\u500d\uff09"
+  "ET1JUCTwzwPzxsP7a9FcePRGeftJbpxorLwydoCFCujs": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.59\u500d\uff09",
+  "CdhZVXPjwXDy6a3xCbHjBB7gj8ZLXc6gy5ecDNyaTJ98": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3SCgE9iL26Grfg85fxru6ECYrLiCdSCeys66v364MKmr": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "J36ozNKgsKbGZn73mDHAz8jvuibifC92aRx5Npz3cwsH": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3C8mWgKtR4hRYQDa6Wnost87BGPtPPCUjpU9fSL86K1r": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.73\u500d\uff09",
+  "Ffc7qJJzzNeWbyzM8ke2gXXfZaRUy9UJjborH9EMBQ43": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "7nk2mKYdV9hNy9w84T5Y9yAzHaEkFnxcdqtXLQBKUExo": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "5BA5z3PQjnhdbTidWepKmT8wRVazcDtPMWtMWhA4K6Pn": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "B1bJZFqowUywS7V5RoouhvCtXdsCX1eS2FNETr8fRhuo": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "89uEGQx832NCWQAKcGW2tCXa7SQ8JvFekSqbmpwXVtXG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "H3b8fAhX2GKriK4cQ1mZEb4H8z8V3F45m1pwxgLEtGwT": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9y7mFJZtWwU43UZbpLzC5y1GBoXEM56RRxgV2VGhJgEA": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6wzERfPQXErMR9MrRdofP1SDr27zrXkxVY2j1e532Mzd": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "E6VAqCDPpaWH7YJf4vZQFoK82Y33izJWnhJQUr35kxa1": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.39\u500d\uff09",
+  "FE9FQT4KqUKz9hqLHeySXa7eRU9qmKs5q5W2vw4jajgg": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.49\u500d\uff09",
+  "HUZRg285MM2M9zojpwTVNJM3ugeHev7jgLDjEmCNZ2Jm": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.90\u500d\uff09",
+  "2VZky4ozH6uQobb1caXioAizBmyWAFwTLfeQ5WFkHbiS": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.88\u500d\uff09",
+  "E8APqcyZpz21zDQU6TfAzquNoJ3YgTjTxxRP18roUch3": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.48\u500d\uff09",
+  "7ponwc8XJSAGEVidTX2FMgdXds3WUmfDUgA5tMqFa6mW": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.43\u500d\uff09",
+  "28KJxyrJ4JvXZUKdQPbParyfsmBNQ8k33ghuB5za8Cy5": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.26\u500d\uff09",
+  "2dDv8CCgsZe6kKFH5AzamdBjuq3HhQA5oox29BUMdHYB": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670985\u79d2\uff09",
+  "4jDj3uwyUeYJ4Ve99BqwK5giF2psj13zcBvDZg4PFZAT": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "DbRWYLpq2sPmKA5BT4TM2BpobT6FyQueRNwec2yadpMP": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -348,6 +393,11 @@
     "FUtWmbTLN1qxnAqZ22ivbpeTq4rd2aRhpHNXqt9iFXUW",
     "HtuzcCz6hueZbfS8vYNzyFADqfWSNbXZxET9P9LVwjbY"
    ]
+  },
+  "H2ZViwA4dwxHd3bctARCUDUqTwTqfVrbmKQMrwBmpump": {
+   "seen": 1794206219,
+   "change_h24": 2047,
+   "early_buyers": []
   }
  }
 }
