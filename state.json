@@ -1,5 +1,5 @@
 {
- "bankroll": 93.31,
+ "bankroll": 28.33,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -168,9 +168,18 @@
    "before": 83.99,
    "after": 93.31,
    "open": 3
+  },
+  {
+   "start": "2026-11-10 19:46",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 6,
+   "before": 77.1,
+   "after": 28.33,
+   "open": 2
   }
  ],
- "cash": 41.08972,
+ "cash": 6.1e-05,
  "open": [
   {
    "token": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
@@ -186,14 +195,6 @@
    "qty": 0.12055361356575485,
    "cost": 17.488501751160314,
    "opened": 1794307695.2831798,
-   "initial_out": false
-  },
-  {
-   "token": "9VZerdNL1x6EjetDqRnh5bYcdmk1y8sLAGs1ybzGpump",
-   "leader": "5ZMCQ79UkZJRjSaiWSc6wFWRAsZPXxroWphBMEvdd7ki",
-   "qty": 48817.459029144724,
-   "cost": 17.348138371539587,
-   "opened": 1794315546.7879753,
    "initial_out": false
   }
  ],
@@ -496,6 +497,71 @@
     "GhXRX2w8mUhgxCJ2ahCjtM6UAdMaY5UcG8RX7NZE7wBc",
     "HgMTYtXwiC3WJWshz8xNSvWtYjPCuCT4UU1rNNp6gxgZ",
     "J9BgcCfHtYAuE4RAF1FYK6fjo2EqsQiSx5UPwvD1bTG9"
+   ]
+  },
+  "2uQw2gvnhYYQ5T5jJf3MvLPyUquQ54VFHbMHBTtCpump": {
+   "seen": 1794340010,
+   "change_h24": 2158,
+   "early_buyers": [
+    "2CnsguEuUj2XvknYMgRDCLACMAdTXs5UmNxiHYZmWvf6",
+    "2QndSdiroPL1v63RHDgfXVE1ZvPae3TjDE2AD56iQqUt",
+    "3uSLArzms7fp1d7v9cwfVg8Foe8WNfFfuR9hQE2AQvsx",
+    "5GLH6foY9RVVNRdRLuq9wiVkdYrFbk2qhTcZ6uNMAM4m",
+    "67pUSGsNHUbxFPaip2dDuMiWfzHrgpP7ocfCUcVCkx8Z",
+    "7PYsggyafk5Awf5QyBt9rRU8792ht5snV7GWhUU67K5p",
+    "7ZizWFk3XctBrzsEBm2SvS76n8YguTd75nitBGejrYbf",
+    "8dJfPe6N1E46cuAjTroJjD4SWCq6KRNpCVx7zgivKrKv",
+    "96bcxFvcEB2EfiKtKxSzD9EUrxPMxjfg9svUorAXnUVf",
+    "A7dRWp8b74McQJXd5Z68dPTEB2uUaYaHRh3mWtJSGkE3",
+    "AWwnnYBe4ykeTDUze8ZYHFiedAUFzbaKfCXptLgC16L1",
+    "BNkzesbLABjW4o1SHfTQrLczCDgKcZRPhWNFawGxf51M",
+    "BYVCEzNyK3fPr1XPtV98NZpPR3qjEbBfz1Cw15fKBkgA",
+    "BkMyayMUo7kPnUyVuNn5uvpGbC97hDUkfYVrcUAJcN7p",
+    "CQdFpUP3GWQ6n4gVy5vS14ASCrCMZBDNDMT1ZZ388Fai",
+    "Dnv2UT4q2cNgn3VfbanAUk2D8y6GoLkzyfAw8NnNULgA",
+    "ERXe58W5QGhYqWwHFyCUGmHTGprVgiTbajWsdRVf8tc2",
+    "EapXcH22uACbNsPCN1EFdPZKy423KCcYja5aGgfx8zsv",
+    "EfQrrbfNFhMnLfmkx95wRcso6nYk1FNgQRFK6mv2NkF8",
+    "FtMirBinzLVBnosSCT5tpvGexxJZuXC7ZFKkmev4c48q",
+    "H4W8yvcUrDfps8gub4VSpUxhya8Vum5CSAdZ28BGqTvj",
+    "HSZRn5XAfhnKPPMgRsGpTrRkXSUzVbeaMCehpckU6MHo",
+    "HnN7Qa4mtVgViSmYbWkedpPN6GkdGjsMBjqiW7QgprF7",
+    "HzKHyRMpp7ea1aqywuGVapvZeauMkTGD3HAUcj68Qn8X",
+    "svGTvaELwTBGBAcnbCqZzK9J5fkHWQYxbLHoNm5Ek86"
+   ]
+  },
+  "9Uz1XmRQGjD2NspWH1FYAtVromkt74s45FXEwXpmpump": {
+   "seen": 1794340045,
+   "change_h24": 296,
+   "early_buyers": [
+    "32s34PBkXMu1mgfRRVGgU1bPDZY76wd4n5k7Ry43Ap46",
+    "56PYVze21UH5LxYcAzgF7ot66ioTDmTiZiRGC9kzQ3z9",
+    "59Qxz3yQsNN8Q3HoY6tJdz2pWXDo8T8gXE5Pmi85WbTx",
+    "69ytQLgPLrDiDtEQDuBNHp79gbxQxxVq9fo1oTCvgNzV",
+    "6JzEz32RqJDPSFHzVgPxcqseQfPqjZZLtg9AMENkFWfe",
+    "6Rpz7oHGSBGSy9TrF3bdUMpMuU3TNSmvaPLV62n1sdyh",
+    "6ZWztJyunEDYb7CZRm9qyKKSahdq2pcX8MVkF6KWzMuU",
+    "6cyqrVpzZusFHNHGbNYEHV2rW6nRQLNdF7UPRPXbGXDM",
+    "78MpxLFTLVSjFPuUJHcoUHavprLcR18EozixdEcoz9wg",
+    "7eY1NTuKDmEkfAEvAh5rc7bk4wrvgoPEPBeFmoJiwh9z",
+    "7tYYVjvLXuhLpPD4PoUaPUXkrPBLu7dbPJda1iKCzipx",
+    "9VkRpQjHhdaRi8cdDeLxB5TYLWwq6VMXF7JfiA2HQMmd",
+    "ALVVWjbfN3wQSuK259HLqDqmiPrF3Bn46Pk3JmiFmB5C",
+    "AQSnNR8aUKCB1uzbNNNxYPgNFVGjsWN2qqm2BTEcS7aq",
+    "BPQcq1afvnAHRf4snadiQy391bp5UjbidQtz82D7vooq",
+    "BYMfzrk93vjavFxurAQLV3ErvCfYAxfNUdQg8wtUXjVy",
+    "C3mU5SDyVod1yfxxEYvXDVQBb3xdghNjSLadrRqcRM2B",
+    "C8SBdxS7kpoCcTgbKCSRRqxiXpjD6qsYsak92SovhxAV",
+    "CRjt8HL9fYq8Jxci6KaaR4BKc347Qnm2P5KhwuLWjyjr",
+    "CeW21XqckQpSoutNUPS9nrcdFSaAMRzarXRwAKonMkWn",
+    "DkSU4qY4SRyNW5DFayVcPKHwkJt8rfrbWWMWCq2XtvBd",
+    "GV2rfdENGUQJq1MwTKVdSA6Q29XA9N6ni6LuE5xD1GcT",
+    "GcWCpRETCm9G3hG2ZFZFTtaR9B6eLg8jCCffXXZTsp8t",
+    "Gcm5ahokZ4MKD2gwe2SfY1mZEggQ6tSzU56AeSP7sNSB",
+    "GkkrfHD2zUNRe1S3U1LfZmVUcoNvJSnc8QDA1mjcWx6T",
+    "HTFz6ErRtUkNutAFxPyc3i2yiQiNh2tWgKtXGtYhHizc",
+    "He4whbWZJTsexeWbfeCLXxRrKicuPGWPUEavCzPnCYti",
+    "HhbXQEnJZey72ZT3fLCYXVWwgKt8TTRu8YqNgTFgGZRV"
    ]
   }
  }
