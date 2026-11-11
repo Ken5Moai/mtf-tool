@@ -1,5 +1,5 @@
 {
- "bankroll": 28.33,
+ "bankroll": 29.03,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -176,6 +176,15 @@
    "copies": 6,
    "before": 77.1,
    "after": 28.33,
+   "open": 2
+  },
+  {
+   "start": "2026-11-11 06:27",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 28.6,
+   "after": 29.03,
    "open": 2
   }
  ],
@@ -562,6 +571,62 @@
     "HTFz6ErRtUkNutAFxPyc3i2yiQiNh2tWgKtXGtYhHizc",
     "He4whbWZJTsexeWbfeCLXxRrKicuPGWPUEavCzPnCYti",
     "HhbXQEnJZey72ZT3fLCYXVWwgKt8TTRu8YqNgTFgGZRV"
+   ]
+  },
+  "8yLBuP74RnFmjSRS8BGFebvyoTo8uiEjPB71h3Zgpump": {
+   "seen": 1794378501,
+   "change_h24": 10326,
+   "early_buyers": [
+    "7J2HTsGQReW5LqE9sT5pYL8LiWHLTcdg4oediqeeSzSX",
+    "7e8LQMJjjo9weg4dQv7PWHUJD6uhgcdL6eN7E23Lef8h",
+    "Q5rnUHMBEaG3SmHZt43uK7o2NzsD9vfiNwQtmBYwpC8"
+   ]
+  },
+  "5tBXkPVh716zSXHNZSr8i1PX7e6Uuj46JnBLdYchpump": {
+   "seen": 1794378536,
+   "change_h24": 5387,
+   "early_buyers": [
+    "24WRG1gztSxbxbjhhoaqVUm98W9xNHuCvamvARsphAcT",
+    "2a4akgtXcRX7HvCkAgxiDigyZQerp71kxnR7yq1goLMy",
+    "2hC2oAap3oiDY9eqMRdgQA9K6e9H8yUQAaTxmeHhPy5b",
+    "3BSRkGWs2vxvvBf4sKWCYQsXEg4DZCTQr578CE1DczYB",
+    "4ZB3NtKzVk6iwoSY3ahXPAfRo1zyNW6PinrEFQNHnB65",
+    "82B4emCmUzDKGLvkqsaBLPpQxpDx8PCwvZyniayEp91A",
+    "9HkRVgmeNeUcid1jTnZaUb9i5xytcZmJBrnXe4p6PfrJ",
+    "9P9yXAuigxJJkPn5MxjGKhAt5Eyf2CKiqYtv27tmUywk",
+    "A8PFTyCV8aRC4Sx7APwkp3aGRjcGJxY2XhCnnTagRnQV",
+    "B4ryu4TPWDPEYinVSCS9sfuTjHYFkeY63HCNCY6inBbL",
+    "EWxNJtmWAbh44wR8HMXcAeTqGEhjdmPe2cVoEUBLsLNj",
+    "GQNRRapXWxPadzw1kBtaheizgKhSoUTsq9CGvuvQhemJ",
+    "GoWogBxr5veH65dPEpPaabr4GxzVrPRieS2UbUnJSQyN",
+    "H22UPh4DgX9e2BS2oHW9ESCnZjzTwcdDoMzBMtTMcqS8",
+    "HK5pEarVETcT7jQh2k1KM7sPUzSpg3TRTNL5VS3pHqKN",
+    "aKcX47fMw6Xz7HZcrvnhnQNZtk3j7UbzvkPer4MCj5S"
+   ]
+  },
+  "GHtnAtTCPFz8MRTMQiEyuEob283EUgqd1d1Fysnhpump": {
+   "seen": 1794378572,
+   "change_h24": 1279,
+   "early_buyers": []
+  },
+  "Hg3w7GdPViZ5URuCNnK6EwXLzSTmVwX6UXLeD6Pbpump": {
+   "seen": 1794378607,
+   "change_h24": 943,
+   "early_buyers": []
+  },
+  "6mwuYnY3fHdxed9GnrdY5BkXhJwMi1uz39MPsYUcpump": {
+   "seen": 1794378726,
+   "change_h24": 905,
+   "early_buyers": [
+    "2dzQoXWRSVmZy2EKQeTJHzB9TNGeVxX1S2SknFNEEdWK",
+    "3XpAWC9kvwVCyh39DKY4RViEtvyQ4ufrkFeVNb3Wv6aa",
+    "5GTu7QT3xpM9325v3VNi6DuUN2zwZ18uS7YvQxfDYWFV",
+    "5hnVqifazNqdpudU2a9kHUjvzQ3Phs5rVtEvNdK8P3jq",
+    "995FXXt24wPsVPwEGboo749GM2grDfwNMTNGNWo4tv44",
+    "AyThSFew12MG1VnATY8Yb7qUFTj3swDcL3VWQtWA9kbs",
+    "CwaCv2goSBE7SidMs6mp1x7oi2o1kKzjgmyjMvtn3RuS",
+    "J4Jnh1oa1UbwSW41cMGFANvvEeAig6ExAbn3SFktbWoN",
+    "SPxFPQ7f5fxYibEY7RL3oS43R1DUJwtbj7V57bZoFKU"
    ]
   }
  }
