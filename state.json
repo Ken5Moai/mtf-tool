@@ -1,5 +1,5 @@
 {
- "bankroll": 29.03,
+ "bankroll": 47.65,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -82,7 +82,7 @@
    "screened": "past check passed"
   },
   "7PJpueDZiWDgkrcEMHr9RcFN8dg2Y8ZaJ9wjx9htzbzz": {
-   "status": "candidate",
+   "status": "keep",
    "added": 1794264453,
    "source": "recent:FNxVZo25dGerP4Tw49f4aHg9xac5qw1FER9F7EzK9cTs",
    "screened": "past check passed"
@@ -186,9 +186,18 @@
    "before": 28.6,
    "after": 29.03,
    "open": 2
+  },
+  {
+   "start": "2026-11-11 19:38",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 12,
+   "before": 27.86,
+   "after": 47.65,
+   "open": 3
   }
  ],
- "cash": 6.1e-05,
+ "cash": 0.0,
  "open": [
   {
    "token": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
@@ -199,11 +208,19 @@
    "initial_out": false
   },
   {
-   "token": "SPCXxcqXj6e5dJDVNovHN8744zkbhM2bYudU45BimGb",
-   "leader": "5ZMCQ79UkZJRjSaiWSc6wFWRAsZPXxroWphBMEvdd7ki",
-   "qty": 0.12055361356575485,
-   "cost": 17.488501751160314,
-   "opened": 1794307695.2831798,
+   "token": "nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump",
+   "leader": "GWS7FxWhdgshe7sZ7s1ZoZ49mGw5kfN1V3hXzBHtnEcQ",
+   "qty": 12549.237206837319,
+   "cost": 24.542543205411743,
+   "opened": 1794432560.0487373,
+   "initial_out": false
+  },
+  {
+   "token": "TTWofwAge91oFhZs7kpQdyrVRkmevgM88xijGvQFbKo",
+   "leader": "GWS7FxWhdgshe7sZ7s1ZoZ49mGw5kfN1V3hXzBHtnEcQ",
+   "qty": 0.08096070657453572,
+   "cost": 19.2108165368266,
+   "opened": 1794432761.522868,
    "initial_out": false
   }
  ],
@@ -628,6 +645,11 @@
     "J4Jnh1oa1UbwSW41cMGFANvvEeAig6ExAbn3SFktbWoN",
     "SPxFPQ7f5fxYibEY7RL3oS43R1DUJwtbj7V57bZoFKU"
    ]
+  },
+  "89iRVoDVPd8tuRrMyhgPfe58eDneasPsdEVu5AUMpump": {
+   "seen": 1794425932,
+   "change_h24": 2936,
+   "early_buyers": []
   }
  }
 }
