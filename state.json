@@ -1,5 +1,5 @@
 {
- "bankroll": 47.65,
+ "bankroll": 41.41,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -64,7 +64,7 @@
    "why": "scalper: median hold 3s"
   },
   "5ZMCQ79UkZJRjSaiWSc6wFWRAsZPXxroWphBMEvdd7ki": {
-   "status": "candidate",
+   "status": "drop",
    "added": 1794177407,
    "source": "recent:DDDfDJGreM6pYbKEiB8NqkZ3RhgG9Q1zKK58SvcHpump",
    "screened": "past check passed"
@@ -195,9 +195,18 @@
    "before": 27.86,
    "after": 47.65,
    "open": 3
+  },
+  {
+   "start": "2026-11-12 07:14",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 8,
+   "before": 52.0,
+   "after": 41.41,
+   "open": 2
   }
  ],
- "cash": 0.0,
+ "cash": 11.447776,
  "open": [
   {
    "token": "Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw",
@@ -205,14 +214,6 @@
    "qty": 0.012446391996865393,
    "cost": 12.254649104957682,
    "opened": 1794277751.2101917,
-   "initial_out": false
-  },
-  {
-   "token": "nxPqZ4F7ux8Vph5NFu25rEP6Kx9Gr1U6Fmj36Rjpump",
-   "leader": "GWS7FxWhdgshe7sZ7s1ZoZ49mGw5kfN1V3hXzBHtnEcQ",
-   "qty": 12549.237206837319,
-   "cost": 24.542543205411743,
-   "opened": 1794432560.0487373,
    "initial_out": false
   },
   {
@@ -650,6 +651,42 @@
    "seen": 1794425932,
    "change_h24": 2936,
    "early_buyers": []
+  },
+  "AJFnmpiF4VTKeqEWtwBUarib5zKKbXcs594UyrMHpump": {
+   "seen": 1794467725,
+   "change_h24": 740,
+   "early_buyers": [
+    "4HEJCGeGLfgGDyKr7nnTf3fb2sqemfkmRKKsK51iZKYC",
+    "6oxmBPFwEa6vshjBf5EExtm57eyaezVkPiNC3tdeU7Fb",
+    "Ah1vrzskNpQw1nkpYBsU96x125vLvBS14AwwNxxgHr6z",
+    "BDWFMSLSfrCCpXxUdRyBCdkW4zez58Pg2H52qZnjw8C",
+    "CQGufn3C6BEFgHub3QM4awQLma56KMiB58yZn29vYbyy",
+    "CssyduuTbPZtKiNabhSDBo7rB1BEA3BDH4pD25S7fPxJ",
+    "D9mHuAAtNmWCxa8BR9uU4dLKapBZgAnDUAqAhodWHLTm",
+    "EfPzFX6fjmxpEaFTggSiSpFrmV682qG7NrdVEtV7uGLj",
+    "GbWrE28fbXbPkH9vAPAU3kUMPsScMjcsgLWCvkPXCLaV",
+    "HWDQh6HYUjxdD7QTxGFCpNWdYq2RNm9x7LFx1cwuiXd",
+    "JPftGi5vT131JHox9szzcGHp7ZfV5BUFZunfrS9igwq",
+    "RUNkeQnmz19LitY1ejfQMcA8JLmGYjy9dVq9cMJju2P"
+   ]
+  },
+  "8AAVuQpJcqpvCuutxyBTVvgBEXZJSkZoNv1sExpBpump": {
+   "seen": 1794467761,
+   "change_h24": 441,
+   "early_buyers": [
+    "2bb1D5VuTpmdxpMtBnimyTzVHfQWjd8nCEMBdNjag4Dm",
+    "4SMU14grsjsxD25ro2uiuubCV9YoKfZKQHrXCSwZCf1H",
+    "5GcabhiDzQfHMAVrjNEoV2im9Li836NVvYeuT4KP7Jb3",
+    "6YEM9cw1TfmSmxLsCacCLwB7ocDQNbD4phmBS3po64AZ",
+    "6dEBmcDBL8o67ak4gnS4c5PRWn2Zy9EZo21b8Dg2QRm2",
+    "77YSN1w5ptFTbbMF9mE1uS6e4gDfaFqsyBjU82uw9Qd7",
+    "AkEDQnTfhQRBVNKT3LWVwpFRLzFTwbKkJBQ16aZBqJQ7",
+    "Bs4nkrFEzLrsh6s2kwaj7yLSNNirSk1sX2fQfxepus6f",
+    "DqLrjv2WUpmb42c37adYVmHyrRndUe3UnKnXdAv68zNH",
+    "GAAZvGA4ck72dkiD9YyP7h1pnuzqm2rRLxhhSUYuwLEH",
+    "HTyXYfFpSWKRDZ5c7b9XyK3AHQTBnW5gBJtoniBTXXTz",
+    "xQYUkuz74EQY78v3cyRux8oUtMmNGRGh4f38YAUMktn"
+   ]
   }
  }
 }
