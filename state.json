@@ -1,5 +1,5 @@
 {
- "bankroll": 24.77,
+ "bankroll": 24.8,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -236,6 +236,15 @@
    "copies": 5,
    "before": 28.27,
    "after": 24.77,
+   "open": 1
+  },
+  {
+   "start": "2026-11-14 06:28",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 24.77,
+   "after": 24.8,
    "open": 1
   }
  ],
@@ -855,6 +864,38 @@
     "Gs6s9y6ShgmFfPRfju9FJ77JHw2xxhPz8Dt23m9PkeQZ",
     "J8WzoBeraZP8K46jUqLxsgYYwandei6RuYgk2doroyWX",
     "ddQcH5hqWmy99KNFahH9JpXLXj77h7oZuZaUnZsbZhg"
+   ]
+  },
+  "HWya5CpQiQWLnJfJVRDF9o8AHaUPnPMRa3vfQRczpump": {
+   "seen": 1794637733,
+   "change_h24": 11360,
+   "early_buyers": [
+    "3MLQ65jn32HSFktPQo9AUWYvs4SH7rzZQb7BiT6gfaVA",
+    "6H91gFdf3mBhb47p2k6Ui1ZEzWKw1htUXMwzXaoujAGg",
+    "8dVKK8nbhtRRPo5aoLMoFstEHXR8BwLnkvad5bXaVxo2",
+    "FJS97WcM7iZRn4cKAj2dnSd4S6nWSDeBMpSRefbwyLuU",
+    "FpvRD99WAb2gJ41qT5sX4CaLSjaKaQYS67HtNKA5MGBA",
+    "GtgQdwyoY1RrDDcmbNLgW49t1wcY4sK6CDJMzDDVJw1z",
+    "HA6V5YC6ag9QNjyXkFaVA4daa9bvEBwSZnQDVJrUcmVf",
+    "HHhbd4m1gM39QJ1LBHJthApW2Gg9nREZbWp28saDQRT1",
+    "Ht1zLosKHZRP4ZW12M5KkEcTrizvmq7MYJJutvFaX729",
+    "J66E4CZ7AFm5Ezp4BDuLHdpYr2o2qakKFqapqocP5dkm"
+   ]
+  },
+  "B2YpP21vQBESJ2jtnuhPujEUT61KVRxZ2X5gsDcUpump": {
+   "seen": 1794637769,
+   "change_h24": 1126,
+   "early_buyers": [
+    "4LQqzQ5wp1UdxhHVyb43sM8vBDqDiE5wLhPRA1Z2gYq3",
+    "716qsN32UpAfr7zUrbtgoopb4cEYCFsvNJbZ1w3o21sS",
+    "898MvWULNULq34zpY4r2mMWoStvJMnPA5pG35WXHyz4q",
+    "9Da5XrThd8ey6yPRdFCLYvbqgoEKQd9WjdSCc6KmxM5Y",
+    "9a3pnyaPBeWWHWSZ2ciUX1dkAmroKV8gbQhb78JBmF7p",
+    "B78jW1XyS5dNL7fyARUsCYGp5bLKaAGuo9PoR6wCzFSs",
+    "D9jcqwHzCkQjPPFrNbpcX4ETeg4qViULVd33oJ9uJYuw",
+    "DjRMSgptWNJQ5qqUWgVR4ZVQDcvKyEnBftfnnVneDtW",
+    "H9potffEqvX6uBmqbgFsdrALtFeGJJEUibjQFEBqaijB",
+    "HoMfz82aesxYioVRTL6vuTVukcpXWzxwNXzbVzE2DNx1"
    ]
   }
  }
