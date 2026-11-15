@@ -1,5 +1,5 @@
 {
- "bankroll": 24.94,
+ "bankroll": 25.17,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -263,6 +263,15 @@
    "copies": 0,
    "before": 24.93,
    "after": 24.94,
+   "open": 1
+  },
+  {
+   "start": "2026-11-15 06:37",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 24.94,
+   "after": 25.17,
    "open": 1
   }
  ],
