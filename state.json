@@ -1,5 +1,5 @@
 {
- "bankroll": 25.17,
+ "bankroll": 26.28,
  "start_bankroll": 149.0,
  "leaders": {
   "5crwBrEPjB7WGrPdygYYVdyWe75aheLaekNSG57XXtJQ": {
@@ -272,6 +272,15 @@
    "copies": 0,
    "before": 24.94,
    "after": 25.17,
+   "open": 1
+  },
+  {
+   "start": "2026-11-15 18:53",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 25.2,
+   "after": 26.28,
    "open": 1
   }
  ],
@@ -923,6 +932,29 @@
     "DjRMSgptWNJQ5qqUWgVR4ZVQDcvKyEnBftfnnVneDtW",
     "H9potffEqvX6uBmqbgFsdrALtFeGJJEUibjQFEBqaijB",
     "HoMfz82aesxYioVRTL6vuTVukcpXWzxwNXzbVzE2DNx1"
+   ]
+  },
+  "FL3LnVeZTtn7uvcpytRLyAYsqUJtznskjdE4p1HSpump": {
+   "seen": 1794768869,
+   "change_h24": 1519,
+   "early_buyers": []
+  },
+  "3GN46GsmAUQSpHXtY3oasJFYAbp9RBzVoR7X8ar1pump": {
+   "seen": 1794768905,
+   "change_h24": 102,
+   "early_buyers": [
+    "3bTqgbphfRbpb8MWLyf1pb7GfoZ8H1xH8feozeDvH7FD",
+    "4yVcShQALThozAUtWQTgG6Mt9biEQp8W22JuZhE7PU7K",
+    "6GtWtAGeiSfuz7n8xBuUYmf7cZW2aRtApam7PbX8qWBV",
+    "91soHN8zzQV5bkYYG8A92qnhBPAkZNHDTerPRYABDQmK",
+    "9rThNMRnDuDyfNffx6Fz837GnxGuhoSwTFxKL9ad5uez",
+    "ABZLgcKundBuSvTgJJXAvNnwtnF3VPWYJZcZ896gzgmK",
+    "AEUUpwJD1tywDAYQ2wNL8ryLaH9T1ErK7cz8bT2cueFA",
+    "DT9CGVzp7t781oLa6BBDC4ft7i5LJyZPfAC8rZ2mxQW3",
+    "EqGLpcY8fjYuos6a5H7HDH7kc8MGKBwkKE7UNiSzGT4k",
+    "GMqvi3RLL7YC2gtZ8zUcoYaBKqwevgUa1q1rKKktSDCX",
+    "HX3MjY4Ap3wwwrndXEmwAhQwQ6bZCmP9XbdvR2b1RKvw",
+    "naNTa9zBLNtZYX1WsSmdMeKXdoUz7M2jTGSkUiJqrEv"
    ]
   }
  }
