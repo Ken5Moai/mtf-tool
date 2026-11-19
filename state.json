@@ -336,6 +336,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-19 07:29",
+   "minutes": 340,
+   "followed": 5,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -569,7 +578,31 @@
   "6z4TeRfb3PxJjgxEA7pUSjCB6PBWAZK6ETMeWxfzjrFE": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.87\u500d\uff09",
   "GcftVihWfVD5kFkZ8DXcymg7J6muxTyjBYV8PCSPcDLm": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
   "4wncaMtsKxfnGK4PC6EMfZGQ6YQtLMt61dAsMRaXrte9": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.81\u500d\uff09",
-  "nEm76gvVA7tYgffWfmxWurPSunC57KH1iggVM1u7QWX": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.83\u500d\uff09"
+  "nEm76gvVA7tYgffWfmxWurPSunC57KH1iggVM1u7QWX": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.83\u500d\uff09",
+  "3n9R1dZ1BZT4TG17Aey2k92vyeFnQB7hyfpRtdn8bz3m": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670975\u79d2\uff09",
+  "5ZaZb4RLef6VPLApDzvn9FoqCnKfPeV7ZBATz9Re9f89": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670943\u79d2\uff09",
+  "7pMDxgBqyQqEnLVFUjjhj1zk8eb1b4U9TmQgXMs4warH": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670975\u79d2\uff09",
+  "JE8T14iVtJjZ3vU2ntLTYNMxJdtPpr6WMsGkn61fV8vA": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670988\u79d2\uff09",
+  "FHqxQh9XrWDEwnBytjQGKLNRptgx6dsQXQJ4CD3mYJ9N": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "4JeKiKQ8dr9kMqnzAeMJ4b383CSF9nnJ7wNM27zbXd2q": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "66nd7fNsgF7uQn1KLWM5vYg5PSNTJyzaAM7zd92FcHhK": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "ChFvkZy6FgmZN6wBfTsZFKLuuoZedPirZ6p5xCQ33s2v": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9ZUJCGF6UiWvbnBAhSTbZwY5PbRwhwE7BiEBgkcUwhix": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "6RjPGD9hc71iwHn1XMftg4wbjL6RwiDHyMwJKGrHhbN4": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "3hoTkUrshLBixBn5FT3Bj6UPmBRCi2SF3kStKPDPA57k": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "2eiiUSmzJ11GmTCASBvXy47uUf9ma3MLkWAsyyurPog8": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "97gre8EZvf1M8sZpEkWNB4dCRnd9LSBdWnHcQN2n7FTx": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "E8xnF9fC2M92nUGifTdeG3bqbmRKjyuehh1yit5CMTbJ": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6HJE74U8evpXffZ5b3GWTdZT6cRPKUJe86mMZKQuQYHs": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3BkDRXqsYiXJFDu1VzJNLvx4NoEi2txZrFtKxeb36as5": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "CAU64nTpie1cciCwid4EgSCcBWfoHpAMZfJutaEEv1Cx": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "yFpMGrFbyoVkGBHLCuqbV19QFbCUEF3DFHTn14AvTC8": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "7BwPttGCvWyK5mmQa7Go1J2uvxfwZ3NephnusqQRDis5": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "7SsTSKpcxQ8kP3cBKcXUv5P7PqkYgrkb5eSDydMT64JP": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.10\u500d\uff09",
+  "9JinGYz95iEjGmvySuFkg6oYtKUwXNpeDruy8rWPfNS9": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670942\u79d2\uff09",
+  "F4npr5ZTVMHrAEqdv71vRsSfqfbpePDFN5xzC1LgPwCi": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.76\u500d\uff09",
+  "9T25Sy2ik9rDXpG7DyD2zjeobbHBPWAkeFPDvmBqG8Jm": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "48umcrvPuYG4vWgtBCpSx3rWpDyXDe77p3YkLvHPkj1u": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -1326,6 +1359,59 @@
     "8L2y55D11k63CAftvW7uMM2mBhtMxLoLnivG9uY2bt8j",
     "CqR7nUPFswqjELRmYTPACMuGp39ci9pyo5suaDu82Yp7",
     "mCJh4Z1GexzXiQXgYxRoGGxSB5Ecs7YXexdhSkqdUY1"
+   ]
+  },
+  "A4jXnWk1rDRDth6HmDASi45c89n1AguTHivAQPTVpump": {
+   "seen": 1795073390,
+   "change_h24": 1701,
+   "early_buyers": [
+    "2GCbWWiVyEerwQQRHfAmJshv3z2qupyfbPGkq6Cz4xGc",
+    "5ChFzskRs8JdnK5jfMSd9TeUQQ8q21Kydq6QrV9sksoU",
+    "5YBNmKwsKM5E3pF9Ufp1GQtWWBZwfviB3QeXDwF6Kd8d",
+    "9TAnk5NYdyBsYpZtUApHvRrt7oETUiCV7c59mGQhxkLB",
+    "AReKUeKFto5YdVvGQUwqrTSdMxdcFnkZV8yj2ScsCWYz",
+    "BdxSPT5dkC15sxvFBW7Rq28PDnQXs2tZQqDqWBRZJWkD",
+    "CPTQXgCANw48W5NzFMcFsZMsqFycEYeR8UTmb2dffh4L",
+    "DNr14osPWtJH5RB568XvUgAM6k983wxsUvbrhZjRDQj4",
+    "HM1QSodbiMedSsuYH8iMXSd1uyD3jvAN1ZRx2M4EvEfW",
+    "HU2UhDUnW4WtdeZ1NDf9RNn4C4YKMm39YVQL5cWJpvya",
+    "J6cSWG5mM8K84DedksAXdxr7GhgSoi31cPYQn71HLQ3U"
+   ]
+  },
+  "8CnvwZJLRpQazvn6LszkzmXJxkmMY2bTQ4Q3NN4fpump": {
+   "seen": 1795073426,
+   "change_h24": 1698,
+   "early_buyers": [
+    "2Frz7FMJXYGcoD7X7wvv4VyAtX8QW8GZkPWLXf1oXCPH",
+    "2nbvX3NyV66MXD9cHADZe813U82AwsicdJWKmpgRhXNa",
+    "4qwjXDfDt6zu8yxYtRZ88hCWGGGCSsBWPDPqoTEvbhHr",
+    "597CE5jpfCSYgKFwB4EiaJJHWtd3emmKshzCjb1E1Fdx",
+    "9xLkXXZaHXQka8Fd2TAjTPdZ2BqDTpT5rDzcwTVZhHwD",
+    "AmEof1jfLQ4q1S8s16jguxHGuosfMkGvwdCiMHQuMt9D",
+    "D8LAuscUg1yzz4h2Mmm4FdyFFPEmJfWr6bxeniXvY8DY",
+    "ESKhKwauUNnUhy23FGLSJ1kNxSYNLaaekPK1dG4RLCs7",
+    "Etw6ngugyNRLvdvaXxDFadFpcgaNSpsg7fGLNHmnKR2d",
+    "G9LMLjMA9UBxpdDcZN3fitXVsWHMtYLf4Q6ziVFP3iHN",
+    "GjeabwZ6h6tVapP6Zig459cPSkGF6Y1VcG55Z5B7AQm3",
+    "Gy1SbcGos5TsyuwUa9Fo8zhEmbtY1RuVPzsbT5hkkVzv",
+    "HNgeVUCpvxAnejb2xARMZUpChqTyE3qTBDSP1sdssCng",
+    "iGvdQA7VqLpsVUYyjaoy7Djbi3eapRHLGSxHbu2NGzd"
+   ]
+  },
+  "CyfdugHk3PT44hEUxpnU25CXAJsVQ9EdipKWCHEBKSdS": {
+   "seen": 1795073461,
+   "change_h24": 1482,
+   "early_buyers": [
+    "2DRBCyfeujUohTksv95ZQh7vN8DLLSRJ9KB1C9XYHX5P",
+    "3n9R1dZ1BZT4TG17Aey2k92vyeFnQB7hyfpRtdn8bz3m",
+    "5ZaZb4RLef6VPLApDzvn9FoqCnKfPeV7ZBATz9Re9f89",
+    "6Nn8eqymtTsysUtbgQtZ59edRiRb16hkhHgHQC6Bha1V",
+    "7pMDxgBqyQqEnLVFUjjhj1zk8eb1b4U9TmQgXMs4warH",
+    "CiVjMeELSZnvRQSdKFNgdNvERrsGx4jEPnfymRJ8pGM7",
+    "F3mGKH8hLubDfDHbk3RmvKgcpFH4ujVqsGDddEixFU2f",
+    "FhjApyaAjkfeLT9eTiEzhjUepHtQvULsYn8bTBLAyhFj",
+    "HZchzsvTk7fqq9awh2i857QTcDMNAH4yecbBgP9xxGEW",
+    "JE8T14iVtJjZ3vU2ntLTYNMxJdtPpr6WMsGkn61fV8vA"
    ]
   }
  }
