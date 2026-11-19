@@ -327,6 +327,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-18 20:35",
+   "minutes": 340,
+   "followed": 5,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -523,7 +532,44 @@
   "9m8FqT78TBGmsWjHqDniWJMURTfSjJVcuKo2ZB1EWprU": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
   "8kQ4zDrbTtrfX7Zigt6NBj18daEJiTZNbGEdXGH3TnY8": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
   "DZjJsnjFjz4C8HNnRrcjgecHN2RbP1c12v9JqYHkVKJT": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
-  "BPq9RBStpeEiDGAzQix8ecBuod73VEkwXWPuYZjGVqEj": "\u6c7a\u6e08\u304c\u5c11\u306a\u3044\uff082\u56de\uff09"
+  "BPq9RBStpeEiDGAzQix8ecBuod73VEkwXWPuYZjGVqEj": "\u6c7a\u6e08\u304c\u5c11\u306a\u3044\uff082\u56de\uff09",
+  "FUVcbBaPbz8hg8rk4WnhALNYu29Hj1oHaBLh4MjPCZKz": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "GGGakKCZvY9HJQgYAUY71NYnfZDqYU7YWRxcHhERuM92": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6RK1oSv8emVq75AMzXz1kNL7tfuSZj6ARsn7HNTJ2EHK": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3yTgN5HLjJEu6iKdWjKJJtVLtwGJwDqM1bw1ZJsyvuRC": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "8eL7nSN1zqADPiB9g752u7fwAdFWyX15jwiYLpPEVkfA": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "EnXm7byKfLK9x78PnZnDdHR7uGEWw6miRHbw8i4KZj7t": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6UwHPXFN3TtGtsqJSjPARhe2zCgwXPykLS12HGfUQwCw": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "8CbKTkkfk1r2xX3maiHXyGyaPpzjR2cyZEL6ub7YwwAH": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "ywm19EWQBnHzHU8r8KDnYEbDx8FwZpyDAeAezQMcJRt": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "E6KV6o1vDbQviJsSjMibZoaJBh8qgoMdrZXbw1SU8cuN": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.54\u500d\uff09",
+  "HUYupeJ5ubCVABRjaxMpCZJ1aQHj5nZ5e56s2JuYDVq2": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "5q3XCXAYeEcCGCHwofjcgrjgNvdPvSFKPRmGYG7rQKwj": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "CgLpatgx3T4KPgM3Pk2SPJdkRqLtiEgSkhYn7i6pEsUY": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "5bS7SPPRVcDioUZj62cYFhLziKP8sihFkZMffqNMEeCY": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "WwKVsuwQ9LAoyXjsV1Zxc2NFpKTvHLki4jA54N6EwgG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "7aj5c9b38cpiQYAYYby562edXxgQ7sxwTpWi3onchkdH": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9M3ScGzqLr1aJZygu9wxtfWZNQ4GdToawdTgP89G9fWL": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3sy8CUz8RxSw7iiHEqpJUEu1xaY9yxFV31bR5ZgAQFRH": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "4CbjtgTxzTcj1upppehbgXJmTw2TF2ixef3f3tPCVp6H": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "31qRBx9htdzfMDhyLkN9LefyETpKXJrGa2XVCDcTd3UM": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "4iGdiYmxEK4x7QKE1D8bqCEf2oCP4MZnfxHrvP63ntAC": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "CGn2WoNdhASAuP6kw6buQBmUGP6wGNx3koTw31QXCgzj": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "2eQTk6fixEpApirgFiMXJXBntjMas8rJsywxGzGcC9PY": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "E5q5QaAT2VJSGprRvdWxjTsFKjyap8Yf3AKy49Q1sWRZ": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "GoqmcPzhAUuTjLPWbE7Mx3SwQATYASqkyK2WS6A3zbhi": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9Vk8oxGqSXZRDXhCmB59WCxtErHeSNLSMruepWPfWdEq": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "9zjkHJCB9cDYu8bJpm4JYzqNST5w8bx7bgMqRA8VG9N7": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "Fa3LaeNnH7tzyhMKm6L9MYQ1LtdudZMWzjFT3KXhoanN": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "HwFqEcfgdF56VyZa4BTGA9QeiiZZ2SddPAw6jyhJY6p7": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "DiVuR3cCuHhit293i2QqXY2SvG2Q5m219aFeHE5m6X46": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "33fEQQib8916wNwQH2m1RhcnpnkaQkXy2c6MJC3shK4Z": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "GbWfLHejqTtxFVgvMLdMeEVe31XxjdMbQbyPe34Pnhmq": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "FjFGL3vNAfUoMz64waMVXHXhH46JJpM4pMpyTZgJZ4X1": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "6z4TeRfb3PxJjgxEA7pUSjCB6PBWAZK6ETMeWxfzjrFE": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.87\u500d\uff09",
+  "GcftVihWfVD5kFkZ8DXcymg7J6muxTyjBYV8PCSPcDLm": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "4wncaMtsKxfnGK4PC6EMfZGQ6YQtLMt61dAsMRaXrte9": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.81\u500d\uff09",
+  "nEm76gvVA7tYgffWfmxWurPSunC57KH1iggVM1u7QWX": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.83\u500d\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -1225,6 +1271,61 @@
     "Ff2sFwaLDmai73fbWmzQvbYVW59JuTMwGJzgqNR9jp9k",
     "GZ2ncQz68gTXRbHxMC8LxtKb5gD5ZuAPcdBotPuu73hr",
     "pDueg7EgkqAre8ng3skNWhGcEUFuKcks5TcZ1KgsRzs"
+   ]
+  },
+  "9rbKkz2BDQBVgZmrHY6d7PTq2ge91gkpEyE4y9PPpump": {
+   "seen": 1795034140,
+   "change_h24": 3993,
+   "early_buyers": [
+    "13vkFbAMq9pt7BGJPPZxNeA58xpXhebk5FD1ZSD4n4hy",
+    "2EfvFhTxzCNkBgnsZQzkVDCMEjzJog3G7suKECR53DvZ",
+    "2Kg36YXtxNa1BUFYPi5ujjTBxqeomPri3tpuuzntpB2K",
+    "2zRUasqXAbjqoh5GB8HxjAJdU9h4GniUUbv8zArLyiVK",
+    "3D6GJLuSzsBn1aAZtWw52Ga3KGupgfFDf5FeSba1yZuT",
+    "3T8nvh9w4WzCfisepmQRNVrt6nzRUyB7Df4GDTupvYZe",
+    "5eK2rZojFbPyCPUs9N4biRCF94PAxvzzuxcYok6nxVRJ",
+    "5or84kK7JBhEHo5siSDhbj5aZ5XJNpfnufFnoakjknS2",
+    "5u1Du2xQsEXzdudMBLW8i2s21Fdm3jxFrH3ws5FQ5BAC",
+    "6GznbVNNkyrHB98wXcPSYZb4t1odVVpVbkG4BkKUKzjx",
+    "6QccfkyYEk6tDpnG1csPxcPbQxUaRjRkFNY87bgxRrnE",
+    "6u1GmzGWcPS2E4rU3yCvrXSKMtndLAp5p62ZtmcVwub7",
+    "7TouJAsUHt8xyp8MorLmXVJBugNpznmwuj69VshWjDsW",
+    "8LFkaAMrAp86iHycqNbkCZ6ynyFgcjP5YfV7BP2GenS9",
+    "A5qDYXqHQQJjz312h7AH75xiKJpLnkYs22SuxsqX5ZsN",
+    "AKYpMSHxgN2yRPg2JJBPb4LyUcWp1ZpNsZmMgphFXsnR",
+    "BmNTu9goqfgqiXfuSpCS8JzioGUx3sy3jVpcCav4wNBg",
+    "E8ix2S7HzthBvfrDUmhtmZsHzyPHWKjmvLEopkZysxED",
+    "ESmB4uv3K4k7D8gajez7FxqMNgHUAkKrqSkwAhEpfWu4",
+    "Etfy6i3cVaLHZyLiNPyAgEuWSRZDmuNQ3xg7s5XA5xt2",
+    "FZnSGGc5mLKbuqfC1qFTjzG4QEfk5tUWchv2dSW9FEYW",
+    "GHwpJ6SvyG5UtmoPHYH7XKtt9xCnzJtYpm82B3xL2FEV",
+    "GeL3uXcB8cqzcDW4Vvw7kBbBBtGDvRa62UhmEVsL8e4V",
+    "GobJEe7eGm6AEPTMF8fQBbVowNUqkab9dZ3DncnQSixy",
+    "HBr6wxTwcPTNwNPBBJkLDG7KfCVo3JEPCBrxwPBaokYJ"
+   ]
+  },
+  "8HXsCMy8ma8QP2yVZXG5SZYyaTZw5AUrUDha1G4upump": {
+   "seen": 1795034176,
+   "change_h24": 1384,
+   "early_buyers": [
+    "D7Ntm4hYLC5xgKxbGRYFzzzfo48x1Rcf69Mop4LLZi7C"
+   ]
+  },
+  "EadD2LMp6EbH9PrbXUFWcrZKMhoKVrZN1gpwRhH5pump": {
+   "seen": 1795034211,
+   "change_h24": 353,
+   "early_buyers": [
+    "53LyWv6jfYYPprrX9M3jF693BqFB1ua3mNiZuSfkE2aD"
+   ]
+  },
+  "FVzqGqRmr4UH1Fif6dewmwbJ1p4YUZCu8dcw4Efopump": {
+   "seen": 1795034246,
+   "change_h24": 119,
+   "early_buyers": [
+    "5vfCdYZ8Q4yrgGgXA9ZC25U5zqFMFbiPHugYtGQ8R2fY",
+    "8L2y55D11k63CAftvW7uMM2mBhtMxLoLnivG9uY2bt8j",
+    "CqR7nUPFswqjELRmYTPACMuGp39ci9pyo5suaDu82Yp7",
+    "mCJh4Z1GexzXiQXgYxRoGGxSB5Ecs7YXexdhSkqdUY1"
    ]
   }
  }
