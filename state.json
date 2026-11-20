@@ -345,6 +345,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-19 20:40",
+   "minutes": 340,
+   "followed": 5,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -602,7 +611,20 @@
   "9JinGYz95iEjGmvySuFkg6oYtKUwXNpeDruy8rWPfNS9": "\u58f2\u8cb7\u304c\u901f\u3059\u304e\u308b\uff08\u4fdd\u670942\u79d2\uff09",
   "F4npr5ZTVMHrAEqdv71vRsSfqfbpePDFN5xzC1LgPwCi": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.76\u500d\uff09",
   "9T25Sy2ik9rDXpG7DyD2zjeobbHBPWAkeFPDvmBqG8Jm": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
-  "48umcrvPuYG4vWgtBCpSx3rWpDyXDe77p3YkLvHPkj1u": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09"
+  "48umcrvPuYG4vWgtBCpSx3rWpDyXDe77p3YkLvHPkj1u": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "EauQXu3k2fiTWG4C96uggqJyQrHSbgptNBy8M3krEQH9": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "FE32ZZJW46wYec91Hj9sjj3o9ZVBVxhRNHb4n1FNmTbU": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "HsTPKdohF8VHum34n9dzYYu7kWSYh4R6ajHVVHgFEJEy": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "zn2pvwq2rwP2w6gadPHMojU11vepgyPadRisZrB581j": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "EsP9dMwm8UXvhFy1B3RmZosMd4Umc4DAipxgrZ9LoQiz": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "3X4QVMUiSB6JECDmb3UjxBVFEiCybGNpRJDETczaLK9u": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "FA37z8r3kVyMpJuGEh3ZUL2qn4D21HFf5iVqyu1MX1Lw": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "DkFgyYoCmtJnfC2Jr8Pu9Nr2bSoM7UahkSU1wCqEsZLZ": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "Ff3cZ8f9m5qoUqT42K4AadEcSPwmEaPMztQZdSuWDCKr": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "4d6qNVu2YytDHRgGLjhek7EHfRMcaX8xDcysBuuTXkeS": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "Db9JczPcBwdNcXr3W6WMFpp6nNoVuqEzVF1dmgSdsCoT": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "GTKgnyG9iDofrFEoLne8QRei9DWqDJ8rYCsiGrFoMNUe": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "HGkvJxgo4zuKprsLr8xo7ZyX2GydT3fPu9iWr9bxY3dH": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -1412,6 +1434,42 @@
     "FhjApyaAjkfeLT9eTiEzhjUepHtQvULsYn8bTBLAyhFj",
     "HZchzsvTk7fqq9awh2i857QTcDMNAH4yecbBgP9xxGEW",
     "JE8T14iVtJjZ3vU2ntLTYNMxJdtPpr6WMsGkn61fV8vA"
+   ]
+  },
+  "7bCiddGLe5aM8HE2pigT9jsqkmC1HSPxyXN6GkHEpump": {
+   "seen": 1795120867,
+   "change_h24": 1166,
+   "early_buyers": [
+    "2AJRjuWK8XnQzQvaYXycBdMSXa5BjUed8FCUKKa8XJiU",
+    "37iYzn6BA8wjUu8Sny4jE6FYgWqyekqfjeTg2Djieuio",
+    "3MBuaVqqLeYxn2JdmTTeYhK4oahrrjyyHdEC8bsv3KLd",
+    "3xQiMpgKHwr3uyGA9R3y85moTAB9ZKrijazyjgPNdSxL",
+    "5tCcqqLzKLKwnbXpW7Sp8ud8sWLbP3Lwwgk3ABuA1Sri",
+    "6Jun2trSRuz8SyfqDb1xtwosZ29FwDoQEcaRNaSzp5A",
+    "6Kiibd578pzqCsd1CB3NzqxeutewQTqS4uedgQ3N36jH",
+    "6Y1zUgDGvbDSqbqunFNdgKnLf3N52XK6HhYbTK1oy8ai",
+    "7TXyF1gtVe3p38VHbAcNRFosCTeTGimCKu5kku2sqwVt",
+    "7eBNwBA1rzc89yYct7bChx5Ro3TZzTfM5gSpgetXZiEd",
+    "8KWiiQfteyunx2hFxgrjJ9FB2XbrvjNwV5HnhBqf2Cw4",
+    "9aU7qYdN3ywWHERXut5Uua5RDGGP126gC2bhGTBF8M71",
+    "AZ7UqRTxdzBTBkGhxTwjyGzCje3STvLKoeFiwfGjqRkn",
+    "Arry8tNVYePg58MRtFTD8Yon3q7yWxDWKdFdxn33cttZ",
+    "BEXUmzXw4osBeexmmeHaABsjpMzSqWLLUNa9k2kspmKb",
+    "BW84EGTpBTmdoXk79ufwUCCUQ72KRMBh5dmnWYB66otg",
+    "CWDLW47qe8Bcr3mkgUuxnUfKXQFiByLjzoVor8EZBufw",
+    "CWrtKgBz3CEENk2SprGPo95oiH4sKjCmkUovYcumnVA1",
+    "EoQQH4QRQPgRJHKEnKA2q1gWD7P2vpvMGTtjHfbq16a7",
+    "G2Wzds7f4ndiUJJqRUPNK43UKayM7HpzZvbwnB6e5Y1p",
+    "H4SiinjzHy693HNsuMafXSkur59XeKKydMv9No3o4MAW",
+    "HEPuorMy2FyfdQ5gfESctSnYLnn6ZXV5Q9BP4neup9rH",
+    "HN5qJ3z9J4ZkjZUS7pvhRYY1ZmEUMHudJa6mJKvDJe72"
+   ]
+  },
+  "2xCd5qHX5tW6pGUo7zfgHSSAnRjJwPA7Sz1Fu4fWcJjX": {
+   "seen": 1795120903,
+   "change_h24": 129,
+   "early_buyers": [
+    "BH4652dAxvTDt3AdqQY9Bm3DJyd1mEkokRWHNLhVXgGF"
    ]
   }
  }
