@@ -92,6 +92,12 @@
    "added": 1794514135,
    "source": "early:F3fEfTxGhAfhkbAaxtiErdcDEMZdTrqssXbfMVKbpump",
    "screened": "past check passed"
+  },
+  "8VbEA9zEj4DLvMPTPhLaEyWuqcBghJwbKgAQkY3NdHTg": {
+   "status": "candidate",
+   "added": 1795206655,
+   "source": "early:7DQQejSWt4bgNmGFFD6QPPUA1YLoMxWhz4roN5CQjE9k",
+   "screened": "past check passed"
   }
  },
  "runs": [
@@ -359,6 +365,15 @@
    "start": "2026-11-20 07:20",
    "minutes": 340,
    "followed": 5,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
+  },
+  {
+   "start": "2026-11-20 20:24",
+   "minutes": 340,
+   "followed": 6,
    "copies": 0,
    "before": 0.0,
    "after": 0.0,
@@ -665,7 +680,8 @@
   "3MWjLNgC54ZBnzpCH99ks8cnbZVqUmSNQiRZ82b3AhEg": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
   "6xmJo7xykQo8TfrN6qW7ba1qFCzN7GSdVfdaC8Xqyxov": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "8TZyhsT4VokjAbfGE8Nx82BfzwLTDdqkowmYxnNnHkDc": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
-  "7ruDTz7vVedL9MXvSPsYxRPmTycFMUzKCmrHuDqx6icT": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09"
+  "7ruDTz7vVedL9MXvSPsYxRPmTycFMUzKCmrHuDqx6icT": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "D49NYVWAg7yTGjooM2iNSrESRxPNzAVAjeeB2z4eos7p": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.51\u500d\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -1563,6 +1579,13 @@
     "HsoFC9Lw3XUsSSfQnNdeebo17T3VSEjhNSyeRrGCEb2c",
     "J6b5L2DAq7wKkPa5rCZzqFZaPcxyPeCNZ1ju9GBbtiwj",
     "nqcssZttqoNqNZxddpYK1CCiXcNDqsPtjPnFCc2rvFR"
+   ]
+  },
+  "7DQQejSWt4bgNmGFFD6QPPUA1YLoMxWhz4roN5CQjE9k": {
+   "seen": 1795206335,
+   "change_h24": 116,
+   "early_buyers": [
+    "2fvYPPn4FiLhKgremcvQwSMBTsha7DiKRHWRSamAfBbY"
    ]
   }
  }
