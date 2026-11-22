@@ -396,6 +396,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-22 06:52",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -1667,6 +1676,39 @@
     "CbGJ4Zzpa6G2vDPNnr42RfoYyNgE2QwzjayijvtBEKcA",
     "Hs3BaV7yjjmV5zKarhuDmTjjuSTpd1vhrzEjWB5yJKM5"
    ]
+  },
+  "3N6Mp8YQuVDfEtyuyJS72s4MRrgQuKY34gvYZD5Kpump": {
+   "seen": 1795330397,
+   "change_h24": 4746,
+   "early_buyers": [
+    "2xFL2swS2MV6WS6u3ebQ8yJru9pyELyiDBAhRwoqdGkv",
+    "2zqGyKs23HY5c96692ZRguQzWbtCTsbSDLxy5jTmCj1G",
+    "3XKMZzfXdDDkyL5HN3oovcNyVQ9wDi9rBujjzHWQgH6u",
+    "43FWkm6hpuXjRGsorRQsNXkePQfNE16FHdEcgf9xbWm3",
+    "5woPmgKxCLM2Q3B6272J55LTF85njSkFf8HLq37ta3gX",
+    "AAWiwm6weexUwv75pgbMrj3NhB9sXHfpFRksk6jVP8JL",
+    "B8RX67Kq8LtUScjQZsbkHvVKzzx6NbLLFNXKkSE2hwQL",
+    "Cz1ij68eH5dWtEdB7EFuKcB8zoSo1hHsG942wzQYKFuj",
+    "EpqTQRXGa3kAH58y1WSZsAi6jJm4145K61jz9ZjvWNZ6",
+    "EzmJgc6Ne7jErQC9CuK6b6VGtV4ksZ7b3mVdrt98qgu8"
+   ]
+  },
+  "6C9r2gzu8Pr54hTevHo3x5gSj9JqtpApj7obJnrtpump": {
+   "seen": 1795330433,
+   "change_h24": 1672,
+   "early_buyers": [
+    "2DWySimRDSf45SF4FJc8UMkxmHzdfjg6dV5QmJf7QeAc",
+    "2EGWHa5sUaKaXPUgpwk4mCAWNNxqJ92KdZzZ1qozwXyr",
+    "3mL4zY53SjnnbutAWPQBDBhgE7db86wP75eu9TPf8w4n",
+    "4mgMD6Btq5p6SAVBFSjL3dh9d1Hx3Y8cq15YvNT1LUWV",
+    "Ehoi9nm45ezJidKjPLHSrfncSxr7XuxUMWE87j3m261D",
+    "HSXehXoTtS9W3UxRZkCbow6uYMqaWV26zuqMbir5DqBJ"
+   ]
+  },
+  "3D7YQcnXi6RMjWxheiE8VLuGXJTtgQkmyugGYvzjpump": {
+   "seen": 1795330469,
+   "change_h24": 554,
+   "early_buyers": []
   }
  }
 }
