@@ -405,6 +405,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-22 19:43",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -1709,6 +1718,14 @@
    "seen": 1795330469,
    "change_h24": 554,
    "early_buyers": []
+  },
+  "FuKY3dk7QmpbDdQRjzbjB3G6PiCuqKNvN4dAWDpwpump": {
+   "seen": 1795376669,
+   "change_h24": 1220,
+   "early_buyers": [
+    "3G5nra3ocTWjKukpbSmcVFhMkjaRSprxPH1L3ULrRjWJ",
+    "8ZhDMsop5mksoDAKN3Xu7w22uUjUJS8JBWZ8t6LhJ4XN"
+   ]
   }
  }
 }
