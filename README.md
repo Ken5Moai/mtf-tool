@@ -176,6 +176,29 @@ ea/README.md             導入手順と、画像との対応表
 `RiskCapPercent` で上限を掛けられます（既定は無効＝画像のまま）。詳細は
 `ea/README.md`。
 
+## マーケットメイク戦略（`mm/`）
+
+直近約定価格を適正価格とみなして、その上下に指値を置き続ける戦略。
+Hummingbot の script と、手元で検算するためのシミュレータの両方。
+
+```
+mm/core.py                      戦略の本体（外部依存なし。これが正本）
+mm/sim.py / mm/tape.py          約定シミュレータと合成テープ
+mm/hummingbot/last_trade_mm.py  Hummingbot script strategy
+run_sim.py                      検証CLI（compare / sweep / csv）
+mm/README.md                    検証でわかったことと成立条件
+```
+
+```bash
+python run_sim.py --maker-bps 2 --half-spread 3 sweep
+python run_sim.py --maker-bps 2 --half-spread 3 compare
+```
+
+要点は3つ。**在庫上限がトレンドでの損失を約96分の1にする**こと、
+**出し直しのしきい値は片側スプレッド以上**にしないと手数料負けすること、
+そして**粗利 ≒ 2S − 3.8V が往復手数料を超えないと成立しない**こと。
+BTC は板が狭すぎてこの条件を満たしません。詳細は `mm/README.md`。
+
 ## テスト
 
 ```bash
