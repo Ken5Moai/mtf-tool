@@ -414,6 +414,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-23 07:42",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -1725,6 +1734,110 @@
    "early_buyers": [
     "3G5nra3ocTWjKukpbSmcVFhMkjaRSprxPH1L3ULrRjWJ",
     "8ZhDMsop5mksoDAKN3Xu7w22uUjUJS8JBWZ8t6LhJ4XN"
+   ]
+  },
+  "E9rWKjVhHMxQkxfREr7Li8Yy46rVcWiWHoKVQAe9pump": {
+   "seen": 1795419789,
+   "change_h24": 16738,
+   "early_buyers": [
+    "2ZpUbyChu8FE6hXVJndQtoL7De3t8anKTrgAkHHHVKsk",
+    "4TA9r7HifE4ZdyahgXzaY56u1UXrfV8e9if8aDLaSiFW",
+    "6SvWFiVC2qr2Kfse9AU4Be7y1xnjeHgWSDR24yUC4q41",
+    "7xGQgj9jYw6tWvaGYcKnFfUQp4exVuXqcHrNSLyiFrkq",
+    "9LArMA9oe2TQWy42C4cAYVhM67Pwd5u2uoaK2bY3UGWt",
+    "ArsjYN92bZ3jB8xXsSKDjUYvpUMd7Hi4BwzdUpKrqz5k",
+    "CpQgwmAsJBdo5dHP9ANzTbqLAhXPJijEy7dcMikokUsJ",
+    "DS9fuWwzhm1GkGVc3JnPQ28YNMY2Mz8aqDG8qmy7XpnF"
+   ]
+  },
+  "3BcJ4SSCfbxDMrWcUDucyCWxMjmy4M2ECCtvxu86pump": {
+   "seen": 1795419824,
+   "change_h24": 7699,
+   "early_buyers": [
+    "2P1azDyVGKf4An7zyTQ9DzmYmaqWXQiJ23WkN7kLEnWh",
+    "2nX75b81N6UdDvEgknCr7CDsXkL89q5TcgEb8zvLn5dE",
+    "3VcxqtkMyuGztDMRLRYkJ5Nyc3QRFwH44N67j2vgRFVm",
+    "3y6ctiy6SNTi1hds3m8jyKjq3GuioqZZS4dGk4zgCZoh",
+    "4BVJdCqPmKtFaY49UtWy9gTEkPZVwBueXxmbFDThNCRD",
+    "5Bz7aLgfBGV82fATZKqZBhunSPx9ZVfzUSJpodAYYv3N",
+    "64svpiipcqqgD76kxWtY8PEhobGxadMdCDZMQmqbCMyb",
+    "6sSCPFgugvTC9m3YX1hZKGnErfnJKtNUjWVR8MhbGUVq",
+    "8ZXoR1oZqjgcXUpMzinNgbUj8R3nh1xharDnf5bFhKTr",
+    "B1jRWyTgxFyPnHR9xamuAK2fPUf7MUndBpEszWXwegWg",
+    "CGQFaCQFyqbDcjo6VpPWq9n5DQTKwjmq1nFFe4fRxDpn",
+    "DArMgUUs3t7L27GoA5ML7iqNYf2NcQojabi8r5rYt1ex",
+    "DsfNz2kzP7oZgmdxcB1MM2QtxkWMWguquLuV1sFNcZCa",
+    "ECPe2YgpoiToXFty46Niu6oq5fdCe5dY8VQjJv4S3QAD",
+    "EExFVZtBQ8hjhxeNV66sJg336rQEKYuvbsR8JMmMZL7C",
+    "Gt6qZBGLMq6dn5yr2EUzWKKRnWgMQxgbcKKiKD7JrCAP"
+   ]
+  },
+  "4npJ3avxnGhCzKbWQpLrQXAHsjWzKr4JqBsbu5Fspump": {
+   "seen": 1795419860,
+   "change_h24": 3341,
+   "early_buyers": [
+    "2aXNfXi36u4zXyvgvuBktah4uspjaV4Z7Pw68YdDg9gQ",
+    "44AyPwJK5uNJyFnJrJSC8QxYcBArZ7nGecKu7NFqVYHj",
+    "5DiqNduGB2dKLXvcVESBhbXLR5tjmwmWcKCZV9bbp5j6",
+    "6ZbHxKQs4B1S4m1iisr1qewJWgM56YQ26DobYmzmYanu",
+    "7M3xe8ap9dqstQgfzCmgESz6jWHhUWa6kT27zTAw6roe",
+    "7apCW4Wd6VLGqdYLHVStReukU2AeqtUUrrbJ54Zv3kfN",
+    "7jyaQpPXs9cAsmmFvKnidHWUUENFU6M1vR8ydjUb29Gp",
+    "7sBtBXVY2vA95EBEc9ppZsxonZAPCNdMbGkd4Mi1dhXP",
+    "BfeQmYUmebVT5xmm26SwEPKwwfQdmHscCbhJsXCZqdrh",
+    "CZnLE8wFPspqWwtm8wBBAmGR7ntF1fKbVYSrtcgAeZqg",
+    "DTGnVH8Fo9eoL7zQ9wQ47i35jV9jxPGt1Pq1xLUW1PPA",
+    "GhaA9dBFNYDc6TSDPuM4Eter48erboN8jaeHLruDKvBu",
+    "GshbgSmJ6P6AThS8c92pDiUqgzM5pLjZAFBEsn2FVt1T",
+    "HnX98VdMqvqiHrckamrVx9kKM56jHxoQ1Wwa6NinCr2U"
+   ]
+  },
+  "93uamrbDerKbUh8MSjNF1wDtxYvEUD1CS9BcHn1apump": {
+   "seen": 1795419895,
+   "change_h24": 3274,
+   "early_buyers": [
+    "24vV198HWAjX8KfNTb7sCKJjpJN7Ski7QgvdPA7N3p5r",
+    "4PqaZxaHCAtDyr5zKcSw4tdbCw297Hwy26p7AUS9Xw48",
+    "4W9jaNyGwLTyekfmCgf2mTpyZsuTVydXrphBRzkikzjv",
+    "54EC85hwXSyySH5R9UX1dBpZBwuWT2AEvN9ujWrNz3uN",
+    "9HdyurcWsfjA3D3mDh26JRYqzzmWipytE6mvHPniwz6o",
+    "A6oAtsUFdz87ca2KDhngyHutvUs4L3oTckuBSppvXPer",
+    "BoQj9ULuA7zZhU15gYD6CfJGZG4SKT3ab3YixYwMBcS2",
+    "D1nkQL4nYpkWWRrEA3qR3fYBWjava5QJsz15PCZDGfrE",
+    "E3x6vi16zcHtH9Lz3kTg48LiBxktmDko5U8hq3WWkopW",
+    "Ej6gk8hrzsdgk12hd4VD3xpbSBoLiWCyW6rU7z41FTkY",
+    "FX834somqduPwkohjBQuJaeXmVSNVAajCoZqrJrbZ4nq",
+    "G1UeNbiLCFaXFtFkcPHqcgPHCjRr5poZLtpTvawTng7M",
+    "Hd3fN1Yis64ZB9REyzdJxZCdwstJB5F6Tq7RwPhguPkG",
+    "YHdEPjTvUW3rqj9RApJh22V1mkrXYdSG71vYPo6gWiT"
+   ]
+  },
+  "BAKsQrynzwadyACDMsg3J5R8a4CTvj1u7kEYyjq7pump": {
+   "seen": 1795419931,
+   "change_h24": 1857,
+   "early_buyers": [
+    "13FU6AWevdRQ46CDcChdnCnutx6KvMBsz1bELaGZtVRL",
+    "2RXJFVBT2vHL57QWHGcDgsswqVkGcrdwdubHA4N7Cwdw",
+    "2VUhHNfvvDS4bM4sUpsKoYCzBumfpUcJvYneP8ShL9Z8",
+    "33KGmC1mnBko6tnH9prrM4HZHwXENgERA6mU7MmBq3bJ",
+    "5csWdx4hi6ZXjuKvgRYqVgBAm5dRDrweAXY1Hsin7DfL",
+    "5xnBNo3MJMhLYPaTjNNUTLVMmNHMUXr8ibHWBeK3YV4f",
+    "69oVJkWEKJze3LwpGbtRhL8Gnf8K8ZH1nM4Y6duXAskt",
+    "6AyiQt8kK5ZLagrG3VJWDHcFXnPcAoMJ1KSv5gWXbWCd",
+    "6NEgvNN75yzyrNS63uhWw9pKeGV8TTcDmKrU79ywf3gD",
+    "6YHVoVwKVYY5pnLvodJVsh3iveWVJFMpSygpoL6KhoLx",
+    "8xP5JrQrgqKDuaRK41BGMhn3UB69wUyhaHg1KRALUtyj",
+    "9ZgreH41Xs3KvJu4b3fYRCoXPLLzd9K7bfrJ9Kfe93bP",
+    "Ava9rRi6kj9WcqFR9NGjDmo73Ao5vMcrzzD9wt3DXSkK",
+    "Bez5c8sW3KEoXPLthmRzkf8hN2Eub5JUUe1FpMQsPY44",
+    "DGZrfWUzvRBQhBBSjyfs2gVSFXP8fnjREsU5tpA3FANn",
+    "DaHEZQCAqLYLru7dbcgENeX3j7EkKuUafCCkm8DNRpUD",
+    "Ds315AHbGj4SubM7DcKmda3LmmWNYjKvAygm5xB2sDqZ",
+    "E4LLK22ChEBg7fYcq847X4sXkgrNWn7KUdtWttPZG42H",
+    "EYCoZSYpzBRxBYBY4s3FpfL46FayAP8zbQ43Dya85yDM",
+    "GNYwWH39ZC8FBJssWT64fzu2uKD53UPqKdKL42xpy6WX",
+    "HuN3Ha7cz97Fg2MQ4tmq4knwVhA3A5U93CgRy2XpxSbH",
+    "Pr9PK1QKSFdfAQvru1LZ1btJrMYu2zkkbAgyeJNaWzr"
    ]
   }
  }
