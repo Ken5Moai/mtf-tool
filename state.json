@@ -94,10 +94,11 @@
    "screened": "past check passed"
   },
   "8VbEA9zEj4DLvMPTPhLaEyWuqcBghJwbKgAQkY3NdHTg": {
-   "status": "candidate",
+   "status": "drop",
    "added": 1795206655,
    "source": "early:7DQQejSWt4bgNmGFFD6QPPUA1YLoMxWhz4roN5CQjE9k",
-   "screened": "past check passed"
+   "screened": "past check passed",
+   "why": "scalper: median hold 66s"
   }
  },
  "runs": [
@@ -426,6 +427,15 @@
   },
   {
    "start": "2026-11-23 23:55",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
+  },
+  {
+   "start": "2026-11-24 09:57",
    "minutes": 340,
    "followed": 6,
    "copies": 0,
@@ -1902,6 +1912,16 @@
     "J476qjWt7UsnWgtYKcvnJyx8HxhskmRUdVg7i3oRmRRd",
     "c2j8peTkxq8MMZpW5EkczVN39kzBeMbAhsLhwy19fyJ",
     "zgeVZoetiPjGtKLFBT4hkCBZH3HnME9FnsZJvA1j7W1"
+   ]
+  },
+  "5LDowscYVD3a6ZS4m8gCqG5nU16eLTwRXhciFi1bpump": {
+   "seen": 1795514269,
+   "change_h24": 5447,
+   "early_buyers": [
+    "3ErNYRT6iRMn7ymeXugbeZhYL99C7V2qFS9tPRyKVvSD",
+    "7eZ5HRKK17zc1HBSKzrWRmmzaCpfKikHLXE8BWePw2Zj",
+    "FRujrfXThRfGr3Lq3GUij1ZqFFjrGv5HrEodXxacNtGL",
+    "H4jmZhmj2mQX2ME3se8JstVpyCUdXBzMqoF7fuNwyEZw"
    ]
   }
  }
