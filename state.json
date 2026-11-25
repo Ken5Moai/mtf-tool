@@ -442,6 +442,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-24 22:29",
+   "minutes": 340,
+   "followed": 5,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -745,7 +754,18 @@
   "6xmJo7xykQo8TfrN6qW7ba1qFCzN7GSdVfdaC8Xqyxov": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "8TZyhsT4VokjAbfGE8Nx82BfzwLTDdqkowmYxnNnHkDc": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
   "7ruDTz7vVedL9MXvSPsYxRPmTycFMUzKCmrHuDqx6icT": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
-  "D49NYVWAg7yTGjooM2iNSrESRxPNzAVAjeeB2z4eos7p": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.51\u500d\uff09"
+  "D49NYVWAg7yTGjooM2iNSrESRxPNzAVAjeeB2z4eos7p": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.51\u500d\uff09",
+  "3GR4vcnYGVpWixVvVQMXt5fp8J64JLxzvSXksReV3HMg": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "2cZMziv1QpGU2UAmHYnBQQ3a49rCYcmXyDR6g8jW5VJG": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "AdSEY9wBvjb8j2hBGNtVQsPd9Jj4BqoWCwnZE3vKaMuZ": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "Cmx1ddYMR5uzhUZ3V2P6XzaHaR2o3ex7dEL1GQ7pWF3k": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "8CHn73EFsaZEq5JAheisLdW8cP5scmws4DYfUZRbRaVe": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "3S9VNv9EfGvXPqMwzShi3Uzu4RanmXrbTbk7NUc24vug": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "dc3cGgzv7mze8bxjMua1kdnELUY8KVAFem3PrPHAX5C": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09",
+  "AaVaCViKk8WVKHF2oZrYRxJDfKX7MtZwtZnJmrct8CAt": "\u904e\u53bb\u306b\u30b3\u30d4\u30fc\u3057\u305f\u3089\u640d\uff080.66\u500d\uff09",
+  "2GMMfqDNNzMFafkGbW9GFagaUQNH3e6er1quVFnhRCjR": "\u4f7f\u3044\u6368\u3066\uff081\u9298\u67c4\u306e\u307f\uff09",
+  "DTaELWcFuU1qgoReevpK4Uob1japUeNTx5ibkYGjcsPV": "\u4f7f\u3044\u6368\u3066\uff080\u9298\u67c4\u306e\u307f\uff09",
+  "DZUUKyqtiTh4jpNWY8j6gjpXhtr34r2mi2TfFjJaB9iD": "\u4f7f\u3044\u6368\u3066\uff082\u9298\u67c4\u306e\u307f\uff09"
  },
  "runners": {
   "BWh8q5etuPwekJ2JEDkbMxMQWy4FysoJ8LEwE3rFpump": {
@@ -1922,6 +1942,13 @@
     "7eZ5HRKK17zc1HBSKzrWRmmzaCpfKikHLXE8BWePw2Zj",
     "FRujrfXThRfGr3Lq3GUij1ZqFFjrGv5HrEodXxacNtGL",
     "H4jmZhmj2mQX2ME3se8JstVpyCUdXBzMqoF7fuNwyEZw"
+   ]
+  },
+  "4m2PS6yW2xDk5V9nJgPjnus1eguwCDSWXbA2YQeVkqxn": {
+   "seen": 1795559384,
+   "change_h24": 164,
+   "early_buyers": [
+    "dc3cGgzv7mze8bxjMua1kdnELUY8KVAFem3PrPHAX5C"
    ]
   }
  }
