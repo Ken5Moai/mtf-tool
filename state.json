@@ -466,6 +466,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-25 21:43",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -2020,6 +2029,14 @@
     "GebK2eDihRWHignbQQkPF3sVUYoMd12EhfghfQrcUqru",
     "HdeVR7GYVU6FAYFzyLv23xtAmX9Xq8LpfZxmt1fvX6KA",
     "s8hT6bH7UwF9evuC7tyqjojLJhe53qsKACd5Xmpbqn9"
+   ]
+  },
+  "5EmvWDizkpjAXbcfCcVq69w1id8GaLzi4LLwtuSgpump": {
+   "seen": 1795643071,
+   "change_h24": 967,
+   "early_buyers": [
+    "26WqSctiEYzMrraAhY3WoJbsmZYyeU42bD7a39ipki9S",
+    "GDtzoDbZngo6M7p321tu36eTqmgvvqaY5X6DnpSje66h"
    ]
   }
  }
