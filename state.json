@@ -484,6 +484,15 @@
    "before": 0.0,
    "after": 0.0,
    "open": 0
+  },
+  {
+   "start": "2026-11-26 21:36",
+   "minutes": 340,
+   "followed": 6,
+   "copies": 0,
+   "before": 0.0,
+   "after": 0.0,
+   "open": 0
   }
  ],
  "cash": 0.001674,
@@ -2129,6 +2138,32 @@
     "BXwo6ZWuodXyTQ2TrMWT6VRrTfZjFWLQUBMPhnnjFAKH",
     "GKLFbmTNZh6ccUoLHXzAqAdAmqkRufWZxaBj4idTHoPZ",
     "HzMtqWLZgBeTtyjteXNbrLSNut3YGpfijcMcV7GmZynK"
+   ]
+  },
+  "Bb38n8AVLMh9amo8qtjLvqE8nPtfs8GEsyzg1pC6pump": {
+   "seen": 1795729012,
+   "change_h24": 2160,
+   "early_buyers": [
+    "12ZedXbqi6HcSZ4FwN3c7QnbYBeaoXHLDmqrAnpG28Pt",
+    "2Ei6HXSWmR2NVrXPAxotHn1XhF5ipjVut1kV1bsk2NvD",
+    "2WzZeyk2SWKYUi1c8xnJXGZD7REqt2JH5JyzzEHLhKiD",
+    "41LyAr9s6NRmeSpJ1xbUt3XHSoBzwcREadC3c1w6uYdG",
+    "4BpTqr3j6vB71dxMBf2VShEKU4wjteVGbmyWNcyp1diS",
+    "4FB93ebUnsRBKo5LaUCUg3np2QUzf6WUw874bkrggdMS",
+    "4RnUVtYMxePbssgCxaLL3WhiY9qqggGCtTViMXxiGdPa",
+    "4q7Fco4ewCYtQkipCe2vBdfDKyVEqSV7zon61Ab93Kvp",
+    "6LGFLgaKcPLFCrqUoec2ZcpS5bfyixfHJiRhudr8hnYt",
+    "7e6zQo6WGWNhSnprxZKS2Ex71CxchSLmd6JrAyacGYTu",
+    "9cbGxbA4YDrZe9qmjw6f2rYwWscNPCaeFz1UDCH5Nq7Q",
+    "9nHsmAcEqyCYVAvD6SciFveGkdqv3abzB6tNvq9KnnfX",
+    "A1PnBEZEp3AXKpHDjc6bE1tezHQNZqNC9nST4EbYH9RM",
+    "AedMB9zvT7NDasTF5SAxrBQoKTtST4oahL82B4wQqk4A",
+    "AmGj2XGJBQZ3qBTE53WyB692ugacYL3Fqa9QxWqYcQ5h",
+    "BpArR9v7xRMMaVNbFGS6VbGkPzWiE1yQpBuQM1qSTDxJ",
+    "FeNDcy1UaAbBd81EDD6K2gKUozTPSGYUUUYWbhoQFyUT",
+    "GFRp1HEQQppbYtMuzQu7eNMeQHwokhMb2SWRkm2mfszo",
+    "GS1TA5SHSzR7dg7QdEqDbEimJqLjg669zXHXsZLQTuoT",
+    "HccDGxubVPkbys6zcx8mKF7PjZLphWKkU7VaBPy5PwPA"
    ]
   }
  }
